@@ -29,3 +29,6 @@ node_modules
 
 # Ignore .DS_Store files on OS X
 .DS_Store
+
+# Ignore dev.js to hide mongo key for dev db
+config/dev.js
