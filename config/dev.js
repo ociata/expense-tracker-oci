@@ -1,3 +1,3 @@
 module.exports = {
-  mongoURI: 'mongodb://heroku_6vbsmwjk:m7565mhp6k9jvt804bj1hm7mtg@ds153851.mlab.com:53851/heroku_6vbsmwjk',
+  mongoURI: 'mongodb://userdevdb:O!41$QxU8NtV@ds020228.mlab.com:20228/expense-tracker-dev',
 }
