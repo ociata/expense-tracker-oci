@@ -31,7 +31,7 @@ module.exports = (app) => {
     if(null != existingUser) {
       
       // generate token and return it
-      let token = jwtHelper(existingUser.id, existingUser.googleId)
+      let token = jwtHelper.sign(existingUser.id, existingUser.googleId)
 
       res.set('Auth-Token', token)
 

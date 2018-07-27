@@ -35,7 +35,7 @@ module.exports = (app) => {
     }
 
     // generate token and return it
-    let token = jwtHelper(createdUser.id, createdUser.googleId)
+    let token = jwtHelper.sign(createdUser.id, createdUser.googleId)
     res.set('Auth-Token', token)
 
     // return newly created user together with his id from db
@@ -44,5 +44,9 @@ module.exports = (app) => {
       name: createdUser.name,
       userId: createdUser.id
     })
+  })
+
+  app.put('/users', (req, res) => {
+    res.sendStatus(200)
   })
 }
