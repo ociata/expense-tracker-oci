@@ -7,6 +7,9 @@
   "servers": [
     {
       "url": "https://expense-tracker-oci.herokuapp.com/"
+    },
+    {
+      "url": "http://localhost:5000/"
     }
   ],
   "paths": {
@@ -61,21 +64,21 @@
               }
             }
           },
-          "400": {
-            "description": "Malformed request, see requirements in response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RegistrationRequirements"
-                }
-              }
-            }
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
           "409": {
             "$ref": "#/components/responses/AlreadyExists"
+          },
+          "422": {
+            "description": "Malformed request, see requirements in response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MallformedRequest"
+                }
+              }
+            }
           },
           "default": {
             "description": "Unexpected error",
@@ -480,34 +483,25 @@
           }
         }
       },
-      "RegistrationRequirements": {
+      "MallformedRequest": {
         "type": "array",
         "items": {
           "type": "object",
-          "description": "Each requirement will follow some rule",
           "required": [
-            "requirementId",
-            "minimumCharacters",
-            "maximumCharacters"
+            "location",
+            "param",
+            "msg"
           ],
           "properties": {
-            "requirementId": {
+            "location": {
               "type": "string"
             },
-            "minimumCharacters": {
-              "type": "integer"
+            "param": {
+              "type": "string"
             },
-            "maximumCharacters": {
-              "type": "integer"
-            },
-            "regexMatch": {
+            "msg": {
               "type": "string"
             }
-          },
-          "example": {
-            "requirementId": "googleId",
-            "minimumCharacters": 10,
-            "maximumCharacters": 100
           }
         }
       },

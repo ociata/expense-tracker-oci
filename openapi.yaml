@@ -4,6 +4,7 @@ info:
   title: Expense Tracker API
 servers:
   - url: 'https://expense-tracker-oci.herokuapp.com/'
+  - url: 'http://localhost:5000/'
 paths:
   /users:
     post:
@@ -36,12 +37,12 @@ paths:
                 properties:
                   googleId:
                     $ref: '#/components/schemas/GoogleId'
-        '400':
+        '422':
           description: Malformed request, see requirements in response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RegistrationRequirements'
+                $ref: '#/components/schemas/MallformedRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '409':
@@ -296,28 +297,21 @@ components:
         requestStatus:
           type: string
           enum: [pending, accepted, rejected]
-    RegistrationRequirements:
+    MallformedRequest:
       type: array
       items:
         type: object
-        description: Each requirement will follow some rule
         required:
-          - requirementId
-          - minimumCharacters
-          - maximumCharacters
+          - location
+          - param
+          - msg
         properties:
-          requirementId:
+          location:
             type: string
-          minimumCharacters:
-            type: integer
-          maximumCharacters:
-            type: integer
-          regexMatch:
+          param:
             type: string
-        example:
-          requirementId: googleId
-          minimumCharacters: 10
-          maximumCharacters: 100
+          msg:
+            type: string
     Error:
       required:
         - code

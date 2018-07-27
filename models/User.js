@@ -3,7 +3,8 @@ const model = require('./model-keys')
 const { Schema } = mongoose
 
 const userSchema = new Schema({
-  googleId: String
+  googleId: String,
+  name: String
 })
 
 mongoose.model(model.USERS_MODEL, userSchema)
