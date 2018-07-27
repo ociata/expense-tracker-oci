@@ -17,6 +17,9 @@ const app = express()
 // setup docs to be served at api-docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+// setup api_key requirement
+require('./middlewares/apikey-middleware')(app)
+
 // setup route handles
 require('./routes/user-routes')(app)
 
