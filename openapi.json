@@ -1,0 +1,542 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "0.1.0",
+    "title": "Expense Tracker API"
+  },
+  "servers": [
+    {
+      "url": "https://expense-tracker-oci.herokuapp.com/"
+    }
+  ],
+  "paths": {
+    "/users": {
+      "post": {
+        "summary": "Create new user",
+        "operationId": "createUser",
+        "tags": [
+          "users"
+        ],
+        "requestBody": {
+          "description": "User to be created",
+          "required": "yes",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "googleId"
+                ],
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UserProperties"
+                  }
+                ],
+                "properties": {
+                  "googleId": {
+                    "$ref": "#/components/schemas/GoogleId"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successfully created new user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  ],
+                  "properties": {
+                    "googleId": {
+                      "$ref": "#/components/schemas/GoogleId"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Malformed request, see requirements in response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationRequirements"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "$ref": "#/components/responses/AlreadyExists"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/users/{userId}": {
+      "put": {
+        "summary": "Update user data",
+        "operationId": "updateUser",
+        "tags": [
+          "users"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userIdParameter"
+          }
+        ],
+        "requestBody": {
+          "description": "User data to be updated. Fields are optional. If field is provided with null value it will be reset to default",
+          "required": "yes",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserProperties"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully updated user data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/friends": {
+      "get": {
+        "summary": "List user friends",
+        "operationId": "listFriends",
+        "tags": [
+          "friends"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved friends list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Send friend request",
+        "operationId": "sendFriendRequest",
+        "tags": [
+          "friends"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userIdParameter"
+          },
+          {
+            "$ref": "#/components/parameters/anotherUserIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Friend request successfully sent"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/friends/requests": {
+      "get": {
+        "summary": "List all pending friend requests",
+        "operationId": "listFriendRequests",
+        "tags": [
+          "friends"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pending friend requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/User"
+                      },
+                      {
+                        "$ref": "#/components/schemas/FriendRequest"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Accept or reject friend request",
+        "operationId": "handleFriendRequest",
+        "tags": [
+          "friends"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userIdParameter"
+          }
+        ],
+        "requestBody": {
+          "description": "Request to be handled",
+          "required": "yes",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "$ref": "#/components/schemas/RequestId"
+                  },
+                  "accept": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated friend request status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FriendRequest"
+                },
+                "example": {
+                  "requestId": "sx6biozc38dcv61lbfup8341",
+                  "requestStatus": "accepted"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "api_key": []
+    },
+    {
+      "bearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "api_key": {
+        "type": "apiKey",
+        "name": "api_key",
+        "in": "header"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "parameters": {
+      "anotherUserIdParameter": {
+        "in": "query",
+        "name": "targetUser",
+        "schema": {
+          "$ref": "#/components/schemas/UserId"
+        },
+        "required": true,
+        "description": "ID of the target user"
+      },
+      "userIdParameter": {
+        "in": "path",
+        "name": "userId",
+        "schema": {
+          "$ref": "#/components/schemas/UserId"
+        },
+        "required": true,
+        "description": "ID of the current user"
+      },
+      "udidParameter": {
+        "name": "udid",
+        "in": "header",
+        "description": "Unique device id",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "languageParameter": {
+        "name": "language",
+        "in": "header",
+        "description": "Device language",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "fr",
+            "nl"
+          ]
+        }
+      },
+      "platformParameter": {
+        "name": "platform",
+        "in": "header",
+        "description": "Device platform",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "android",
+            "ios"
+          ]
+        }
+      }
+    },
+    "schemas": {
+      "UserId": {
+        "type": "string",
+        "example": "5b59940a06dae000b9248341"
+      },
+      "GoogleId": {
+        "type": "string",
+        "example": "067074372935586760222"
+      },
+      "UserName": {
+        "type": "string",
+        "example": "Hristo Todorov"
+      },
+      "UserProperties": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "$ref": "#/components/schemas/UserName"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/UserProperties"
+          }
+        ],
+        "properties": {
+          "userId": {
+            "$ref": "#/components/schemas/UserId"
+          }
+        }
+      },
+      "RequestId": {
+        "type": "string",
+        "example": "sx6biozc38dcv61lbfup8341"
+      },
+      "FriendRequest": {
+        "type": "object",
+        "required": [
+          "requestId",
+          "requestStatus"
+        ],
+        "properties": {
+          "requestId": {
+            "$ref": "#/components/schemas/RequestId"
+          },
+          "requestStatus": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "accepted",
+              "rejected"
+            ]
+          }
+        }
+      },
+      "RegistrationRequirements": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "description": "Each requirement will follow some rule",
+          "required": [
+            "requirementId",
+            "minimumCharacters",
+            "maximumCharacters"
+          ],
+          "properties": {
+            "requirementId": {
+              "type": "string"
+            },
+            "minimumCharacters": {
+              "type": "integer"
+            },
+            "maximumCharacters": {
+              "type": "integer"
+            },
+            "regexMatch": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "requirementId": "googleId",
+            "minimumCharacters": 10,
+            "maximumCharacters": 100
+          }
+        }
+      },
+      "Error": {
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Unauthorized or missing api_key"
+      },
+      "NotFound": {
+        "description": "Requested resource not found"
+      },
+      "AlreadyExists": {
+        "description": "Requested resource cannot be created as it already exists"
+      }
+    }
+  }
+}
