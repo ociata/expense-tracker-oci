@@ -2,6 +2,7 @@ const { check, validationResult } = require('express-validator/check')
 const mongoose = require('mongoose')
 const model = require('../models/model-keys')
 const User = mongoose.model(model.USERS_MODEL)
+const jwtHelper = require('../utility/jwt-helper')
 
 module.exports = (app) => {
   app.post('/users', [
@@ -32,6 +33,10 @@ module.exports = (app) => {
       // todo: add papertrail logs
       console.log('app.post/users', error)
     }
+
+    // generate token and return it
+    let token = jwtHelper(createdUser.id, createdUser.googleId)
+    res.set('Auth-Token', token)
 
     // return newly created user together with his id from db
     res.status(201).json({ 

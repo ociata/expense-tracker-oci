@@ -2,6 +2,7 @@ const { check, validationResult } = require('express-validator/check')
 const mongoose = require('mongoose')
 const model = require('../models/model-keys')
 const User = mongoose.model(model.USERS_MODEL)
+const jwtHelper = require('../utility/jwt-helper')
 
 module.exports = (app) => {
   app.post('/auth', [
@@ -28,7 +29,12 @@ module.exports = (app) => {
     }
 
     if(null != existingUser) {
-        
+      
+      // generate token and return it
+      let token = jwtHelper(existingUser.id, existingUser.googleId)
+
+      res.set('Auth-Token', token)
+
       return res.json({ 
         googleId: existingUser.googleId,
         name: existingUser.name,
