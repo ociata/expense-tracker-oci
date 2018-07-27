@@ -20,21 +20,12 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // setup api_key requirement
 require('./middlewares/apikey-middleware')(app)
 
+// setup json requirements
+require('./middlewares/json-middleware')(app)
+
 // setup route handles
 require('./routes/user-routes')(app)
-
-
-// todo: remove this when real endpoints are ready
-app.get('/', (req, res) => res.send('Hello World!'))
-
-app.get('/newUser', (req, res) => {
-  console.log(req.query.googleId)
-  new User({ googleId: req.query.googleId }).save((err) => {
-    console.log(err)
-  })
-
-  res.send('Create user with Google Id: '+ req.query.googleId)
-})
+require('./routes/auth-routes')(app)
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => console.log('Example app listening on port: ' + PORT))

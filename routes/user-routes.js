@@ -5,7 +5,7 @@ const User = mongoose.model(model.USERS_MODEL)
 
 module.exports = (app) => {
   app.post('/users', [
-    check('googleId').isLength({ max: 50 }),
+    check('googleId').isLength({ min: 10, max: 50 }),
   ], async (req, res) => {
 
     const errors = validationResult(req);
@@ -14,16 +14,17 @@ module.exports = (app) => {
     }
 
     // get params
-    const { googleId, name } = req
+    const { googleId, name } = req.body
 
     var createdUser = null
 
     //make sure such user don't exists
     try {
-      let existingUser = await User.findOne({googleId: googleId})
-      if(null != existingUser) {
+      createdUser = await User.findOne({googleId: googleId})
+      if(null != createdUser) {
+        res.set('content-type', 'text/plain')
         return res.status(409).send("Requested resource cannot be created as it already exists")
-      }
+      }      
 
       createdUser = await new User({ googleId, name }).save()
 
@@ -33,6 +34,10 @@ module.exports = (app) => {
     }
 
     // return newly created user together with his id from db
-    res.status(201).json({ googleId, name, userId: createdUser.id })
+    res.status(201).json({ 
+      googleId: createdUser.googleId,
+      name: createdUser.name,
+      userId: createdUser.id
+    })
   })
 }

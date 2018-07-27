@@ -6,6 +6,37 @@ servers:
   - url: 'https://expense-tracker-oci.herokuapp.com/'
   - url: 'http://localhost:5000/'
 paths:
+  /auth:
+    post:
+      summary: Authenticate user
+      operationId: authUser
+      tags:
+        - auth
+      requestBody:
+        description: Provide credentials in order to authenticate
+        required: 'yes'
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - googleId
+              properties:
+                googleId:
+                  $ref: '#/components/schemas/GoogleId'
+      responses:
+        '200':
+          $ref: '#/components/responses/LoggedUser'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /users:
     post:
       summary: Create new user
@@ -28,15 +59,7 @@ paths:
                   $ref: '#/components/schemas/GoogleId'
       responses:
         '201':
-          description: Successfully created new user
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/User'
-                properties:
-                  googleId:
-                    $ref: '#/components/schemas/GoogleId'
+          $ref: '#/components/responses/LoggedUser'
         '422':
           description: Malformed request, see requirements in response
           content:
@@ -329,4 +352,19 @@ components:
       description: Requested resource not found
     AlreadyExists:
       description: Requested resource cannot be created as it already exists
+    LoggedUser:
+      description: Successfully logged user
+      headers:
+        Auth-Token:
+          schema:
+            type: string
+            example: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJP'
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/User'
+            properties:
+              googleId:
+                $ref: '#/components/schemas/GoogleId'
       
