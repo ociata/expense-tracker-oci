@@ -38,6 +38,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /users:
+    get:
+      summary: List all users
+      operationId: listUsers
+      tags:
+        - users
+      responses:
+        '200':
+          description: List of all available users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     post:
       summary: Create new user
       operationId: createUser
@@ -60,16 +82,16 @@ paths:
       responses:
         '201':
           $ref: '#/components/responses/LoggedUser'
-        '422':
-          description: Malformed request, see requirements in response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MallformedRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '409':
           $ref: '#/components/responses/AlreadyExists'
+        '422':
+          description: 'Malformed request, see requirements in response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MallformedRequest'
         default:
           description: Unexpected error
           content:
@@ -78,7 +100,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       security:
         - api_key: []
-  /users/{userId}:
+  '/users/{userId}':
     put:
       summary: Update user data
       operationId: updateUser
@@ -87,7 +109,9 @@ paths:
       parameters:
         - $ref: '#/components/parameters/userIdParameter'
       requestBody:
-        description: User data to be updated. Fields are optional. If field is provided with null value it will be reset to default
+        description: >-
+          User data to be updated. Fields are optional. If field is provided
+          with null value it will be reset to default
         required: 'yes'
         content:
           application/json:
@@ -110,7 +134,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /users/{userId}/friends:
+  '/users/{userId}/friends':
     get:
       summary: List user friends
       operationId: listFriends
@@ -142,7 +166,7 @@ paths:
       operationId: sendFriendRequest
       tags:
         - friends
-      parameters: 
+      parameters:
         - $ref: '#/components/parameters/userIdParameter'
         - $ref: '#/components/parameters/anotherUserIdParameter'
       responses:
@@ -158,7 +182,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /users/{userId}/friends/requests:
+  '/users/{userId}/friends/requests':
     get:
       summary: List all pending friend requests
       operationId: listFriendRequests
@@ -214,7 +238,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/FriendRequest'
               example:
-                requestId: 'sx6biozc38dcv61lbfup8341'
+                requestId: sx6biozc38dcv61lbfup8341
                 requestStatus: accepted
         '401':
           $ref: '#/components/responses/Unauthorized'
@@ -226,21 +250,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
-security: [
-    api_key: [],
-    bearerAuth: []
-]
+security:
+  - api_key: []
+  - bearerAuth: []
 components:
   securitySchemes:
     api_key:
       type: apiKey
       name: api_key
       in: header
-    bearerAuth:           
+    bearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT 
+      bearerFormat: JWT
   parameters:
     anotherUserIdParameter:
       in: query
@@ -287,13 +309,13 @@ components:
   schemas:
     UserId:
       type: string
-      example: '5b59940a06dae000b9248341'
+      example: 5b59940a06dae000b9248341
     GoogleId:
       type: string
-      example: '067074372935586760222'
+      example: 067074372935586760222
     UserName:
       type: string
-      example: 'Hristo Todorov'
+      example: Hristo Todorov
     UserProperties:
       type: object
       properties:
@@ -308,7 +330,7 @@ components:
           $ref: '#/components/schemas/UserId'
     RequestId:
       type: string
-      example: 'sx6biozc38dcv61lbfup8341'
+      example: sx6biozc38dcv61lbfup8341
     FriendRequest:
       type: object
       required:
@@ -319,7 +341,10 @@ components:
           $ref: '#/components/schemas/RequestId'
         requestStatus:
           type: string
-          enum: [pending, accepted, rejected]
+          enum:
+            - pending
+            - accepted
+            - rejected
     MallformedRequest:
       type: array
       items:
@@ -358,7 +383,7 @@ components:
         Auth-Token:
           schema:
             type: string
-            example: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJP'
+            example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJP
       content:
         application/json:
           schema:
@@ -367,4 +392,3 @@ components:
             properties:
               googleId:
                 $ref: '#/components/schemas/GoogleId'
-      

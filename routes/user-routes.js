@@ -5,6 +5,19 @@ const User = mongoose.model(model.USERS_MODEL)
 const jwtHelper = require('../utility/jwt-helper')
 
 module.exports = (app) => {
+  app.get('/users', async (req, res) => {
+    var result = []
+
+    try {
+      result = await User.find({})
+    } catch(err) {
+      // todo: add papertrail logs
+      console.log(err)
+    }
+
+    res.json(result)
+  })
+
   app.post('/users', [
     check('googleId').isLength({ min: 10, max: 50 }),
   ], async (req, res) => {

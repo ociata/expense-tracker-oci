@@ -15,10 +15,7 @@ module.exports = (app) => {
 
     if(typeof token != 'undefined' && token != null) {
 
-      let decodedInfo = jwtHelper.verify(token)
-
-      console.log(decodedInfo)
-      
+      let decodedInfo = jwtHelper.verify(token)      
 
       if(decodedInfo != null) {
         return next()
