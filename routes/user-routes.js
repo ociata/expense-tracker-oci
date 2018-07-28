@@ -1,15 +1,56 @@
-const { check, validationResult } = require('express-validator/check')
+const { validationResult, buildCheckFunction, check } = require('express-validator/check')
+const checkQuery = buildCheckFunction(['query'])
 const mongoose = require('mongoose')
 const model = require('../models/model-keys')
 const User = mongoose.model(model.USERS_MODEL)
+const Relationship = mongoose.model(model.RELATIONSHIP_MODEL)
 const jwtHelper = require('../utility/jwt-helper')
 
 module.exports = (app) => {
-  app.get('/users', async (req, res) => {
+  app.get('/users',
+    [
+      checkQuery('userId').isLength({ min: 10 })
+    ],
+    async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    const { userId } = req.query
+
     var result = []
 
     try {
-      result = await User.find({})
+      
+      result = await User.find({ _id: { $ne: userId } })
+
+      // retrieve all user relations and append them
+      const query = { $or: [ {firstUser: userId}, {secondUser: userId} ] }
+      const relations = await Relationship.find(query)
+
+      result = result.map((userObj) => {
+
+        var relation = 'none'
+        //check in all relations whether user is there
+        for (var i = 0; i < relations.length; i++) {
+          const relationObj = relations[i]
+          
+          if(relationObj.firstUser.equals(userObj.id) || relationObj.secondUser.equals(userObj.id)) {
+            if(relationObj.status) {
+              relation = relationObj.status
+            }
+            break
+          }
+      }
+
+        return {
+          name: userObj.name,
+          userId: userObj.id,
+          relation: relation
+        }
+      })
     } catch(err) {
       // todo: add papertrail logs
       console.log(err)

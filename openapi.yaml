@@ -43,6 +43,12 @@ paths:
       operationId: listUsers
       tags:
         - users
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/UserId'
       responses:
         '200':
           description: List of all available users
@@ -51,7 +57,11 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
+                  allOf: 
+                    - $ref: '#/components/schemas/User'
+                  properties:
+                    relation:
+                      $ref: '#/components/schemas/ReliationshipStatus'
         '401':
           $ref: '#/components/responses/Unauthorized'
         default:
@@ -341,6 +351,13 @@ components:
     RequestId:
       type: string
       example: sx6biozc38dcv61lbfup8341
+    ReliationshipStatus:
+      type: string
+      enum:
+        - none
+        - pending
+        - accepted
+        - rejected
     FriendRequest:
       type: object
       required:
