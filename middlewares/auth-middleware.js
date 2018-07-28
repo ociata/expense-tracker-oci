@@ -7,17 +7,20 @@ module.exports = (app) => {
     // skip auth and register paths
     const { path, method } = req
 
-    if(path == "/auth" || (path == "/user" && method == 'POST')) {
+    if(path == "/auth" || (path == "/users" && method == 'POST')) {
       return next()
     }
 
-    const token = req.headers['bearerauth']    
+    const bearer = req.headers['authorization'].split(' ')
 
-    if(typeof token != 'undefined' && token != null) {
+    if(typeof bearer != 'undefined' && bearer != null && bearer.length == 2) {
+
+      const token = bearer[1]
 
       let decodedInfo = jwtHelper.verify(token)      
 
       if(decodedInfo != null) {
+        req.userId = decodedInfo.userId
         return next()
       }
     }

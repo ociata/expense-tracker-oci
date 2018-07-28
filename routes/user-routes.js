@@ -7,18 +7,9 @@ const Relationship = mongoose.model(model.RELATIONSHIP_MODEL)
 const jwtHelper = require('../utility/jwt-helper')
 
 module.exports = (app) => {
-  app.get('/users',
-    [
-      checkQuery('userId').isLength({ min: 10 })
-    ],
-    async (req, res) => {
+  app.get('/users', async (req, res) => {
 
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
-
-    const { userId } = req.query
+    const { userId } = req
 
     var result = []
 
@@ -100,19 +91,9 @@ module.exports = (app) => {
     })
   })
 
-  app.put('/users/:userId',
-    [
-      check('userId').isLength({ min: 10 }),
-    ],
-   async (req, res) => {
+  app.put('/users', async (req, res) => {
 
-    // validate input
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() })
-    }
-
-    const { userId } = req.params
+    const { userId } = req
     const { name } = req.body
 
     var userRecord = null

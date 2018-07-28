@@ -43,12 +43,6 @@ paths:
       operationId: listUsers
       tags:
         - users
-      parameters:
-        - name: userId
-          in: query
-          required: true
-          schema:
-            $ref: '#/components/schemas/UserId'
       responses:
         '200':
           description: List of all available users
@@ -110,14 +104,11 @@ paths:
                 $ref: '#/components/schemas/Error'
       security:
         - api_key: []
-  '/users/{userId}':
     put:
       summary: Update user data
       operationId: updateUser
       tags:
         - users
-      parameters:
-        - $ref: '#/components/parameters/userIdParameter'
       requestBody:
         description: >-
           User data to be updated. Fields are optional. If field is provided
