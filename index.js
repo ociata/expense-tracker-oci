@@ -6,6 +6,7 @@ const swaggerDocument = require('./openapi.json')
 
 // import all schemas before connect to mongoose/mongodb
 require('./models/User')
+require('./models/Relationship')
 
 mongoose.connect(config.mongoURI, { useNewUrlParser: true })
 
@@ -25,6 +26,7 @@ require('./middlewares/json-middleware')(app)
 // setup route handles
 require('./routes/user-routes')(app)
 require('./routes/auth-routes')(app)
+require('./routes/relationship-routes')(app)
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => console.log('Example app listening on port: ' + PORT))

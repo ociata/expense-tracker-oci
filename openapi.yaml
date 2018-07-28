@@ -172,8 +172,18 @@ paths:
       responses:
         '200':
           description: Friend request successfully sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FriendRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: User already interacted with this request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FriendRequest'
         '404':
           $ref: '#/components/responses/NotFound'
         default:

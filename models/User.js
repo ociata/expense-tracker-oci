@@ -3,7 +3,7 @@ const model = require('./model-keys')
 const { Schema } = mongoose
 
 const userSchema = new Schema({
-  googleId: String,
+  googleId: { type: String, required: true },
   name: String
 })
 
