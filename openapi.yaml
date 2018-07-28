@@ -135,14 +135,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  '/users/{userId}/friends':
+  '/friends':
     get:
       summary: List user friends
       operationId: listFriends
       tags:
         - friends
-      parameters:
-        - $ref: '#/components/parameters/userIdParameter'
       responses:
         '200':
           description: Successfully retrieved friends list
@@ -168,7 +166,6 @@ paths:
       tags:
         - friends
       parameters:
-        - $ref: '#/components/parameters/userIdParameter'
         - $ref: '#/components/parameters/anotherUserIdParameter'
       responses:
         '200':
@@ -193,14 +190,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  '/users/{userId}/friends/requests':
+  '/friends/requests':
     get:
       summary: List all pending friend requests
       operationId: listFriendRequests
       tags:
         - friends
-      parameters:
-        - $ref: '#/components/parameters/userIdParameter'
       responses:
         '200':
           description: Pending friend requests
@@ -227,8 +222,6 @@ paths:
       operationId: handleFriendRequest
       tags:
         - friends
-      parameters:
-        - $ref: '#/components/parameters/userIdParameter'
       requestBody:
         description: Request to be handled
         required: 'yes'

@@ -8,19 +8,9 @@ const Relationship = mongoose.model(model.RELATIONSHIP_MODEL)
 
 module.exports = (app) => {
 
-  app.get('/users/:userId/friends',
-    [
-      checkParams('userId').isLength({ min: 10 }),
-    ],
-   async (req, res) => {
+  app.get('/friends', async (req, res) => {
 
-    const { userId } = req.params
-
-    // validate input
-    var errors = validationResult(req)
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() })
-    }
+    const { userId } = req
 
     var results = null
     var statusCode = 404
@@ -57,14 +47,13 @@ module.exports = (app) => {
     res.status(statusCode).json(results)
   })
 
-  app.post('/users/:userId/friends',
+  app.post('/friends',
     [
-      checkParams('userId').isLength({ min: 10 }),
       checkQuery('targetUser').isLength({ min: 10 }),
     ],
    async (req, res) => {
 
-    const { userId } = req.params
+    const { userId } = req
     const { targetUser } = req.query
 
     // validate input
@@ -83,6 +72,7 @@ module.exports = (app) => {
       relation = await Relationship.findOne(query)
 
       if(relation.status != 'pending') {
+        // user already interacted
         statusCode = 403
       } else {
         statusCode = 200

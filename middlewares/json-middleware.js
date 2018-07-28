@@ -3,7 +3,7 @@ const express = require('express')
 module.exports = (app) => {
   app.use((req, res, next) => {
     
-    if(req.method != 'GET') {
+    if(req.method != 'GET' && (req.method == 'GET' && req.path == '/friends') ) {
       let contentType = req.headers['content-type']    
 
       //make sure body is in json

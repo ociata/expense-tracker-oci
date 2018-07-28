@@ -221,17 +221,12 @@
         }
       }
     },
-    "/users/{userId}/friends": {
+    "/friends": {
       "get": {
         "summary": "List user friends",
         "operationId": "listFriends",
         "tags": [
           "friends"
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/userIdParameter"
-          }
         ],
         "responses": {
           "200": {
@@ -272,9 +267,6 @@
           "friends"
         ],
         "parameters": [
-          {
-            "$ref": "#/components/parameters/userIdParameter"
-          },
           {
             "$ref": "#/components/parameters/anotherUserIdParameter"
           }
@@ -319,17 +311,12 @@
         }
       }
     },
-    "/users/{userId}/friends/requests": {
+    "/friends/requests": {
       "get": {
         "summary": "List all pending friend requests",
         "operationId": "listFriendRequests",
         "tags": [
           "friends"
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/userIdParameter"
-          }
         ],
         "responses": {
           "200": {
@@ -375,11 +362,6 @@
         "operationId": "handleFriendRequest",
         "tags": [
           "friends"
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/userIdParameter"
-          }
         ],
         "requestBody": {
           "description": "Request to be handled",
