@@ -46,7 +46,40 @@ module.exports = (app) => {
     })
   })
 
-  app.put('/users', (req, res) => {
-    res.sendStatus(200)
+  app.put('/users/:userId',
+    [
+      check('userId').isLength({ min: 10 }),
+    ],
+   async (req, res) => {
+
+    // validate input
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() })
+    }
+
+    const { userId } = req.params
+    const { name } = req.body
+
+    var userRecord = null
+
+    // try updating user record
+    try {
+      userRecord = await User.findByIdAndUpdate(userId, {name}, {new: true})
+
+    } catch (err) {
+      // todo: add papertrail log
+      console.log(err)
+    }
+
+    if(null == userRecord) {
+      res.sendStatus(404)
+    } else {
+      res.status(200).json({ 
+        googleId: userRecord.googleId,
+        name: userRecord.name,
+        userId: userRecord.id
+      })
+    }
   })
 }

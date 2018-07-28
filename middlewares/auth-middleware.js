@@ -21,7 +21,7 @@ module.exports = (app) => {
       
 
       if(decodedInfo != null) {
-        next()
+        return next()
       }
     }
 

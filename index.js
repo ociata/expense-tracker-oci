@@ -19,8 +19,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // setupmiddlewares
 require('./middlewares/apikey-middleware')(app)
-require('./middlewares/json-middleware')(app)
 require('./middlewares/auth-middleware')(app)
+require('./middlewares/json-middleware')(app)
 
 // setup route handles
 require('./routes/user-routes')(app)
