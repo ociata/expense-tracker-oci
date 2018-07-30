@@ -20,27 +20,37 @@ module.exports = (app) => {
 
       results = await Relationship.find(query)
 
-      if(results) {
-        // there is some results, so status code is 200
-        statusCode = 200
-        // retrieve user information for each match
-        results = await Promise.all(results.map(async object => {
+    } catch (err) {
+      // unable to find relation, simply ignore to try create a new one
+    }
 
-            const otherUserId = !object.firstUser.equals(userId) ?
-              object.firstUser : object.secondUser
+    if(results) {
+      // there is some results, so status code is 200
+      statusCode = 200
+      // retrieve user information for each match
+      results = await Promise.all(results.map(async object => {
 
+          const otherUserId = !object.firstUser.equals(userId) ?
+            object.firstUser : object.secondUser
+
+          try {
             const otherUser = await User.findById(otherUserId)
+          } catch (err) {
+            console.log('GET /friends', err)
+          }
 
+          if(otherUser) {
             return {
               name: otherUser.name,
               userId: otherUser.id.toString()
             }
-          })
-        )
-      }
-
-    } catch (err) {
-      // unable to find relation, simply ignore to try create a new one
+          } else {
+            return null
+          }
+        }).filter(user => {
+          return null != user
+        })
+      )
     }
 
     res.status(statusCode).json(results)
