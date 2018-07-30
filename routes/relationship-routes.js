@@ -33,8 +33,10 @@ module.exports = (app) => {
           const otherUserId = !object.firstUser.equals(userId) ?
             object.firstUser : object.secondUser
 
+          var otherUser = null
+
           try {
-            const otherUser = await User.findById(otherUserId)
+            otherUser = await User.findById(otherUserId)
           } catch (err) {
             console.log('GET /friends', err)
           }
