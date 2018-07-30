@@ -21,6 +21,7 @@ module.exports = (app) => {
 
       if(decodedInfo != null) {
         req.userId = decodedInfo.userId
+        req.googleId = decodedInfo.googleId
         return next()
       }
     }

@@ -135,6 +135,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete user, works only for randomly generated(test) user
+      tags: 
+        - users
+      responses:
+        '202':
+          description: Successfully removed generic user
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      
   '/friends':
     get:
       summary: List user friends
@@ -386,6 +406,8 @@ components:
       description: Unauthorized or missing api_key
     NotFound:
       description: Requested resource not found
+    Forbidden:
+      description: Not allowed to perform this action
     AlreadyExists:
       description: Requested resource cannot be created as it already exists
     LoggedUser:

@@ -117,4 +117,25 @@ module.exports = (app) => {
       })
     }
   })
+  
+  app.delete('/users', async (req, res) => {
+
+    const { userId, googleId } = req
+
+    if(googleId.indexOf('rg') != 0) {
+      //only allow random/generic users for deletion
+      res.sendStatus(401)
+    }
+
+    var statusCode = 500
+
+    try {
+      await User.findById(userId).remove()
+      statusCode = 202
+    } catch(err) {
+      console.log(err)
+    }
+
+    res.sendStatus(statusCode)
+  }) 
 }
