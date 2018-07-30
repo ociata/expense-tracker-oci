@@ -130,6 +130,11 @@ module.exports = (app) => {
     var statusCode = 500
 
     try {
+      // first clear relations
+      let query = { $or: [ {firstUser: userId}, {secondUser: userId} ] }
+      await Relationship.find(query).remove()
+
+      // now clear the user itself
       await User.findById(userId).remove()
       statusCode = 202
     } catch(err) {
