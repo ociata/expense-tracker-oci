@@ -49,13 +49,11 @@ module.exports = (app) => {
           } else {
             return null
           }
-        }).filter(user => {
-          return null != user
         })
       )
     }
 
-    res.status(statusCode).json(results)
+    res.status(statusCode).json(results.filter(Boolean))
   })
 
   app.post('/friends',
