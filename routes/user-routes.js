@@ -141,6 +141,6 @@ module.exports = (app) => {
       console.log(err)
     }
 
-    res.sendStatus(statusCode)
+    res.sendStatus(statusCode) 
   }) 
 }
