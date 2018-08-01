@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const model = require('../models/model-keys')
 const User = mongoose.model(model.USERS_MODEL)
 const Relationship = mongoose.model(model.RELATIONSHIP_MODEL)
+const { findUserRelations, relationshipsForUser, userDetailsForRelation } = require('../utility/db-helper')
 
 module.exports = (app) => {
 
@@ -11,49 +12,27 @@ module.exports = (app) => {
 
     const { userId } = req
 
-    var results = null
-    var statusCode = 404
+    var results = await relationshipsForUser(userId)
 
-    try {
-      // userId could be stored as first or secondUser so search for both combinations
-      let query = { $or: [ {firstUser: userId}, {secondUser: userId} ] }
+    // fitler only relations that are accepted
+    results = results.filter(object => {
+      return object.status == 'accepted'
+    })
 
-      results = await Relationship.find(query)
+    // retrieve information for each user
+    results = await Promise.all(results.map(async object => {
+      const userDetails = await userDetailsForRelation(userId, object)
+      if(userDetails) {
+        return {
+          userId: userDetails.id,
+          userName: userDetails.name
+        }
+      } else {
+        return null
+      }
+    }))
 
-    } catch (err) {
-      // unable to find relation, simply ignore to try create a new one
-    }
-
-    if(results) {
-      // there is some results, so status code is 200
-      statusCode = 200
-      // retrieve user information for each match
-      results = await Promise.all(results.map(async object => {
-
-          const otherUserId = !object.firstUser.equals(userId) ?
-            object.firstUser : object.secondUser
-
-          var otherUser = null
-
-          try {
-            otherUser = await User.findById(otherUserId)
-          } catch (err) {
-            console.log('GET /friends', err)
-          }
-
-          if(otherUser) {
-            return {
-              name: otherUser.name,
-              userId: otherUser.id.toString()
-            }
-          } else {
-            return null
-          }
-        })
-      )
-    }
-
-    res.status(statusCode).json(results.filter(Boolean))
+    res.json(results.filter(Boolean))
   })
 
   app.post('/friends',
