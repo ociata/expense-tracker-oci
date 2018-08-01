@@ -424,6 +424,391 @@
           }
         }
       }
+    },
+    "/plans": {
+      "get": {
+        "summary": "List ordered array of plans",
+        "operationId": "listPlans",
+        "tags": [
+          "plans"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of plans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlanOverview"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add new plan",
+        "operationId": "addPlan",
+        "tags": [
+          "plans"
+        ],
+        "requestBody": {
+          "description": "Details for the plan.",
+          "required": "yes",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "planned": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Expense"
+                    }
+                  },
+                  "money": {
+                    "$ref": "#/components/schemas/MoneyValue"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "plan was created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Plan"
+                    }
+                  ],
+                  "properties": {
+                    "id": {
+                      "$ref": "#/components/schemas/RequestId"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "description": "request is mallformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MallformedRequest"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plans/:planId": {
+      "patch": {
+        "description": "update plan money",
+        "operationId": "updatePlan",
+        "tags": [
+          "plans"
+        ],
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/RequestId"
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/MoneyValue"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "plan was created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Plan"
+                    }
+                  ],
+                  "properties": {
+                    "id": {
+                      "$ref": "#/components/schemas/RequestId"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "description": "request is mallformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MallformedRequest"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/expenses": {
+      "get": {
+        "description": "list all expenses by specific criteria",
+        "operationId": "listExpenses",
+        "tags": [
+          "expenses"
+        ],
+        "parameters": [
+          {
+            "name": "planId",
+            "description": "Specifiy to which plans are needed expenses",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/RequestId"
+            }
+          },
+          {
+            "name": "filter",
+            "description": "pass all values you want to receive expense for",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/ExpenseType"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfuly retrieved expenses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExpenseExtended"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "description": "request is mallformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MallformedRequest"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Add new expense to plan",
+        "operationId": "addExpense",
+        "tags": [
+          "expenses"
+        ],
+        "parameters": [
+          {
+            "name": "planId",
+            "description": "Specifiy to which plans we are adding",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/RequestId"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Expense"
+                  }
+                ],
+                "properties": {
+                  "type": {
+                    "$ref": "#/components/schemas/ExpenseType"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfuly retrieved expenses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExpenseExtended"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "description": "request is mallformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MallformedRequest"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/expenses/:expenseId": {
+      "put": {
+        "description": "Update expense",
+        "operationId": "updateExpense",
+        "tags": [
+          "expenses"
+        ],
+        "parameters": [
+          {
+            "name": "expenseId",
+            "in": "path",
+            "required": "yes",
+            "schema": {
+              "$ref": "#/components/schemas/RequestId"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExpenseExtended"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfuly retrieved expenses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpenseExtended"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "description": "request is mallformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MallformedRequest"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "security": [
@@ -534,6 +919,119 @@
         "properties": {
           "userId": {
             "$ref": "#/components/schemas/UserId"
+          }
+        }
+      },
+      "ExpenseType": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "payed",
+          "unplanned"
+        ]
+      },
+      "Expense": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "number",
+            "example": 568.2
+          },
+          "description": {
+            "type": "string",
+            "example": "Kasko kola"
+          }
+        }
+      },
+      "ExpenseExtended": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Expense"
+          }
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/RequestId"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ExpenseType"
+          }
+        }
+      },
+      "PlanOverview": {
+        "type": "object",
+        "required": [
+          "id",
+          "description"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/RequestId"
+          },
+          "description": {
+            "type": "string",
+            "example": "August 2018"
+          }
+        }
+      },
+      "MoneyValue": {
+        "type": "number",
+        "example": 6400
+      },
+      "Money": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "$ref": "#/components/schemas/MoneyValue"
+          },
+          "lastModified": {
+            "type": "string",
+            "format": "date",
+            "example": "2018-03-31"
+          }
+        }
+      },
+      "Plan": {
+        "type": "object",
+        "properties": {
+          "money": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "expenses": {
+            "type": "object",
+            "properties": {
+              "planned": {
+                "type": "array",
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Expense"
+                    }
+                  ],
+                  "properties": {
+                    "id": {
+                      "$ref": "#/components/schemas/RequestId"
+                    },
+                    "payed": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "unplanned": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Expense"
+                },
+                "example": [
+                  {
+                    "value": 200,
+                    "description": "Garderob"
+                  }
+                ]
+              }
+            }
           }
         }
       },
