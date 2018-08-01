@@ -34,4 +34,17 @@ module.exports = {
 
     return otherUser
   },
+
+  relationForId: async function(relationId) {
+
+    var result = null
+
+    try {
+      result = Relationship.findById(relationId)
+    } catch (err) {
+      console.log('unable to fetch relation', err)
+    }
+
+    return result
+  }
 }

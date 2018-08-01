@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
 const model = require('../models/model-keys')
 const User = mongoose.model(model.USERS_MODEL)
 const Relationship = mongoose.model(model.RELATIONSHIP_MODEL)
-const { relationshipsForUser, userDetailsForRelation } = require('../utility/db-helper')
+const { relationshipsForUser, userDetailsForRelation, relationForId } = require('../utility/db-helper')
 
 module.exports = (app) => {
 
@@ -31,7 +31,8 @@ module.exports = (app) => {
           userId: userDetails.id,
           name: userDetails.name,
           requestId: object.id,
-          requestStatus: object.status
+          requestStatus: object.status,
+          myRequest: object.firstUser.equals(userId)
         }
       } else {
         return null
@@ -96,5 +97,38 @@ module.exports = (app) => {
       requestId: relation.id,
       requestStatus: relation.status
     })
+  })
+
+  app.patch(
+    '/friends',
+    [
+      checkQuery('requestId').isLength({ min: 10 }),
+      checkQuery('accept').isBoolean()
+    ],
+    async (req,res) => {
+
+      // validate input
+      var errors = validationResult(req)
+      if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() })
+      }
+
+      const { userId } = req
+      const { requestId, accept } = req.query 
+
+      // find the relation in db and make sure accepting person is second user to prevent self accept from the issuer
+      const relation = await relationForId(requestId)
+      if(!relation || !relation.secondUser.equals(userId)) {
+        return res.sendStatus(404)
+      }
+
+      // update status
+      relation.status = accept == 'true' ? "accepted" : "rejected"
+      await relation.save()
+
+      res.json({
+        requestId: relation.id,
+        requestStatus: relation.status
+      })
   })
 }

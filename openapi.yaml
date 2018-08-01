@@ -211,6 +211,9 @@ paths:
                   allOf:
                     - $ref: '#/components/schemas/User'
                     - $ref: '#/components/schemas/FriendRequest'
+                  properties:
+                    myRequest:
+                      type: boolean
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
