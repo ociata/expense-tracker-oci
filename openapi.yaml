@@ -156,30 +156,6 @@ paths:
                 $ref: '#/components/schemas/Error'
       
   '/friends':
-    get:
-      summary: List user friends
-      operationId: listFriends
-      tags:
-        - friends
-      responses:
-        '200':
-          description: Successfully retrieved friends list
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
     post:
       summary: Send friend request
       operationId: sendFriendRequest
@@ -210,12 +186,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  '/friends/requests':
     get:
-      summary: List all pending friend requests
+      summary: List all friend relations
       operationId: listFriendRequests
       tags:
         - friends
+      parameters: 
+        - name: status
+          in: query
+          required: false
+          description: Filter results by given status
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/FriendStatus'
       responses:
         '200':
           description: Pending friend requests
@@ -237,7 +221,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    post:
+    patch:
       summary: Accept or reject friend request
       operationId: handleFriendRequest
       tags:
@@ -362,6 +346,12 @@ components:
         - pending
         - accepted
         - rejected
+    FriendStatus:
+      type: string
+      enum:
+        - pending
+        - accepted
+        - rejected
     FriendRequest:
       type: object
       required:
@@ -371,11 +361,7 @@ components:
         requestId:
           $ref: '#/components/schemas/RequestId'
         requestStatus:
-          type: string
-          enum:
-            - pending
-            - accepted
-            - rejected
+          $ref: '#/components/schemas/FriendStatus'
     MallformedRequest:
       type: array
       items:

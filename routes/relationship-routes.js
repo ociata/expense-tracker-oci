@@ -4,20 +4,24 @@ const mongoose = require('mongoose')
 const model = require('../models/model-keys')
 const User = mongoose.model(model.USERS_MODEL)
 const Relationship = mongoose.model(model.RELATIONSHIP_MODEL)
-const { findUserRelations, relationshipsForUser, userDetailsForRelation } = require('../utility/db-helper')
+const { relationshipsForUser, userDetailsForRelation } = require('../utility/db-helper')
 
 module.exports = (app) => {
 
   app.get('/friends', async (req, res) => {
 
     const { userId } = req
+    var status = req.query.status
 
     var results = await relationshipsForUser(userId)
 
-    // fitler only relations that are accepted
-    results = results.filter(object => {
-      return object.status == 'accepted'
-    })
+    if(status) {
+      status = status.split(',')
+      // fitler relation results
+      results = results.filter(object => {
+        return status.includes(object.status)
+      })
+    }
 
     // retrieve information for each user
     results = await Promise.all(results.map(async object => {
@@ -25,7 +29,9 @@ module.exports = (app) => {
       if(userDetails) {
         return {
           userId: userDetails.id,
-          userName: userDetails.name
+          name: userDetails.name,
+          requestId: object.id,
+          requestStatus: object.status
         }
       } else {
         return null
@@ -91,8 +97,4 @@ module.exports = (app) => {
       requestStatus: relation.status
     })
   })
-
-  app.get('/friends/requests', (req, res) => {
-
-  }) 
 }
