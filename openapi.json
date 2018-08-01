@@ -537,7 +537,7 @@
     },
     "/plans/:planId": {
       "patch": {
-        "description": "update plan money",
+        "summary": "Update plan money",
         "operationId": "updatePlan",
         "tags": [
           "plans"
@@ -608,7 +608,7 @@
     },
     "/expenses": {
       "get": {
-        "description": "list all expenses by specific criteria",
+        "summary": "List all expenses by specific criteria",
         "operationId": "listExpenses",
         "tags": [
           "expenses"
@@ -672,7 +672,7 @@
         }
       },
       "post": {
-        "description": "Add new expense to plan",
+        "summary": "Add new expense to plan",
         "operationId": "addExpense",
         "tags": [
           "expenses"
@@ -749,7 +749,7 @@
     },
     "/expenses/:expenseId": {
       "put": {
-        "description": "Update expense",
+        "summary": "Update expense",
         "operationId": "updateExpense",
         "tags": [
           "expenses"

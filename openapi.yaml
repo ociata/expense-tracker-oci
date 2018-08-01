@@ -331,7 +331,7 @@ paths:
                 $ref: '#/components/schemas/Error'
   '/plans/:planId':
     patch:
-      description: update plan money
+      summary: Update plan money
       operationId: updatePlan
       tags: 
         - plans
@@ -374,7 +374,7 @@ paths:
           
   '/expenses':
     get:
-      description: list all expenses by specific criteria
+      summary: List all expenses by specific criteria
       operationId: listExpenses
       tags:
         - expenses
@@ -414,7 +414,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     post:
-      description: Add new expense to plan
+      summary: Add new expense to plan
       operationId: addExpense
       tags:
         - expenses
@@ -460,7 +460,7 @@ paths:
                 $ref: '#/components/schemas/Error'
   '/expenses/:expenseId':
     put:
-      description: Update expense
+      summary: Update expense
       operationId: updateExpense
       tags:
         - expenses
