@@ -31,7 +31,11 @@ const planSchema = new Schema({
     validate: (value) => {
       return new Promise((res, rej) => {
         Expense.findById({_id: value}, (err, doc) => {
-          res(!err && doc)
+          if(!err && doc) {
+            res(true)
+          } else {
+            rej()
+          }
         })
       })
     }

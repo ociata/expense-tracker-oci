@@ -12,7 +12,8 @@ const expenseSchema = new Schema({
       "payed",
       "unplanned"
     ] 
-  }
+  },
+  referenceId: { type: Schema.Types.ObjectId, refs: model.EXPENSE_MODEL, default: null }
 })
 
 mongoose.model(model.EXPENSE_MODEL, expenseSchema)

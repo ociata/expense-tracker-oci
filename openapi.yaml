@@ -14,7 +14,7 @@ paths:
         - auth
       requestBody:
         description: Provide credentials in order to authenticate
-        required: 'yes'
+        required: true
         content:
           application/json:
             schema:
@@ -71,7 +71,7 @@ paths:
         - users
       requestBody:
         description: User to be created
-        required: 'yes'
+        required: true
         content:
           application/json:
             schema:
@@ -113,7 +113,7 @@ paths:
         description: >-
           User data to be updated. Fields are optional. If field is provided
           with null value it will be reset to default
-        required: 'yes'
+        required: true
         content:
           application/json:
             schema:
@@ -231,7 +231,7 @@ paths:
         - friends
       requestBody:
         description: Request to be handled
-        required: 'yes'
+        required: true
         content:
           application/json:
             schema:
@@ -292,7 +292,7 @@ paths:
         - plans
       requestBody:
         description: Details for the plan. 
-        required: 'yes'
+        required: true
         content:
           application/json:
             schema:
@@ -304,7 +304,11 @@ paths:
                 planned:
                   type: array
                   items:
-                    $ref: '#/components/schemas/Expense'
+                    allOf:
+                      - $ref: '#/components/schemas/Expense'
+                    properties:
+                      referenceId:
+                        $ref: '#/components/schemas/RequestId'
                 money:
                   $ref: '#/components/schemas/MoneyValue'
       responses:
@@ -464,7 +468,88 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'                            
+                $ref: '#/components/schemas/Error'                    
+  '/plans/:planId/expenses':
+    post:
+      summary: Add new expense to plan
+      operationId: addExpense
+      tags:
+        - plans
+      parameters: 
+        - name: planId
+          description: Specifiy to which plans we are adding
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Expense'
+              properties:
+                type:
+                  $ref: '#/components/schemas/ExpenseType'
+                referenceId:
+                  $ref: '#/components/schemas/RequestId'
+      responses:
+        '200':
+          description: Successfuly retrieved expenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExpenseExtended'
+        '422':
+          description: request is mallformed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MallformedRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Remove expense
+      operationId: removeExpense
+      tags:
+        - plans
+      parameters: 
+        - name: expenseId
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/RequestId'
+        - name: planId
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/RequestId'
+      responses:
+        '202':
+          description: Expense marked for deletion
+        '422':
+          description: request is mallformed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MallformedRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error' 
           
   '/expenses':
     get:
@@ -507,51 +592,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    post:
-      summary: Add new expense to plan
-      operationId: addExpense
-      tags:
-        - expenses
-      parameters: 
-        - name: planId
-          description: Specifiy to which plans we are adding
-          in: query
-          required: true
-          schema:
-            $ref: '#/components/schemas/RequestId'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              allOf:
-                - $ref: '#/components/schemas/Expense'
-              properties:
-                type:
-                  $ref: '#/components/schemas/ExpenseType'
-      responses:
-        '200':
-          description: Successfuly retrieved expenses
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ExpenseExtended'
-        '422':
-          description: request is mallformed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MallformedRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
   '/expenses/:expenseId':
     put:
       summary: Update expense
@@ -561,14 +601,18 @@ paths:
       parameters: 
         - name: expenseId
           in: path
-          required: yes
+          required: true
           schema:
             $ref: '#/components/schemas/RequestId'
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ExpenseExtended'
+              allOf:
+                - $ref: '#/components/schemas/Expense'
+              properties:
+                type:
+                  $ref: '#/components/schemas/ExpenseType'
       responses:
         '200':
           description: Successfuly retrieved expenses
@@ -590,7 +634,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-        
+       
 security:
   - api_key: []
   - bearerAuth: []
@@ -681,13 +725,19 @@ components:
         description:
           type: string
           example: Kasko kola
+    ExpenseWithIds:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/RequestId'
+        referenceId:
+          $ref: '#/components/schemas/RequestId'
     ExpenseExtended:
       type: object
       allOf:
         - $ref: '#/components/schemas/Expense'
+        - $ref: '#/components/schemas/ExpenseWithIds'
       properties:
-        id:
-          $ref: '#/components/schemas/RequestId'
         type:
           $ref: '#/components/schemas/ExpenseType'
     PlanOverview:
@@ -732,18 +782,16 @@ components:
               items:
                 allOf:
                  - $ref: '#/components/schemas/Expense'
+                 - $ref: '#/components/schemas/ExpenseWithIds'
                 properties:
-                  id:
-                    $ref: '#/components/schemas/RequestId'
                   payed:
                     type: boolean
             unplanned:
               type: array
               items:
-                $ref: '#/components/schemas/Expense'
-              example:
-                - value: 200
-                  description: Garderob
+                allOf:
+                  - $ref: '#/components/schemas/Expense'
+                  - $ref: '#/components/schemas/ExpenseWithIds'
     RequestId:
       type: string
       example: sx6biozc38dcv61lbfup8341

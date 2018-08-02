@@ -117,14 +117,14 @@ module.exports = (app) => {
       const { requestId, accept } = req.query 
 
       // find the relation in db and make sure accepting person is second user to prevent self accept from the issuer
-      const relation = await relationForId(requestId)
+      var relation = await relationForId(requestId)
       if(!relation || !relation.secondUser.equals(userId)) {
         return res.sendStatus(404)
       }
 
       // update status
       relation.status = accept == 'true' ? "accepted" : "rejected"
-      await relation.save()
+      relation = await relation.save()
 
       res.json({
         requestId: relation.id,
