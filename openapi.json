@@ -462,7 +462,7 @@
         }
       },
       "post": {
-        "summary": "Add new plan",
+        "summary": "Add new plan(current user is the first admin)",
         "operationId": "addPlan",
         "tags": [
           "plans"
@@ -475,6 +475,10 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "description": {
+                    "type": "string",
+                    "example": "August 2018"
+                  },
                   "planned": {
                     "type": "array",
                     "items": {
@@ -511,6 +515,9 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "422": {
             "description": "request is mallformed",
@@ -582,6 +589,155 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "description": "request is mallformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MallformedRequest"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plans/:planId/admins": {
+      "post": {
+        "summary": "Add new plan admin",
+        "operationId": "addPlanAdmin",
+        "tags": [
+          "plans"
+        ],
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/RequestId"
+            }
+          },
+          {
+            "name": "targetUser",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UserId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "plan was created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Plan"
+                    }
+                  ],
+                  "properties": {
+                    "id": {
+                      "$ref": "#/components/schemas/RequestId"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "description": "request is mallformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MallformedRequest"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove plan admin",
+        "operationId": "addPlanAdmin",
+        "tags": [
+          "plans"
+        ],
+        "parameters": [
+          {
+            "name": "planId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/RequestId"
+            }
+          },
+          {
+            "name": "targetUser",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UserId"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "plan was created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Plan"
+                    }
+                  ],
+                  "properties": {
+                    "id": {
+                      "$ref": "#/components/schemas/RequestId"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
           },
           "422": {
             "description": "request is mallformed",
@@ -972,6 +1128,12 @@
           "description": {
             "type": "string",
             "example": "August 2018"
+          },
+          "admins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
           }
         }
       },
@@ -994,6 +1156,11 @@
       },
       "Plan": {
         "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PlanOverview"
+          }
+        ],
         "properties": {
           "money": {
             "$ref": "#/components/schemas/Money"

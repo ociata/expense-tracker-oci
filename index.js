@@ -7,6 +7,7 @@ const swaggerDocument = require('./openapi.json')
 // import all schemas before connect to mongoose/mongodb
 require('./models/User')
 require('./models/Relationship')
+require('./models/Expense')
 
 mongoose.connect(config.mongoURI, { useNewUrlParser: true })
 
