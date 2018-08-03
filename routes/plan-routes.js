@@ -93,6 +93,43 @@ module.exports = (app) => {
       })
   })
 
+  app.get(
+    '/plans/:planId',
+    [
+      checkPath('planId').isLength({ min: 10 })
+    ],
+    async (req,res) => {
+
+      // validate input
+      var errors = validationResult(req)
+      if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() })
+      }
+
+      const { planId } = req.params
+
+      var result = null
+      var statusCode = 404
+
+      try {
+        // make sure plan exists
+        result = await Plan.findById(planId)
+          .populate({path: "admins", model: model.USERS_MODEL, select: "name _id"})
+          .populate({path: "expenses", model: model.EXPENSE_MODEL, select: "-__v"})
+          .select("-__v")
+      } catch(err) {
+
+        console.log('/plans/:planId GET', err);
+      }
+
+      if(result) {
+        statusCode = 200
+      }
+
+      res.status(statusCode).json(result)
+    }
+  )
+
   app.patch('/plans/:planId',[
       checkQuery('value').isNumeric(),
       checkPath('planId').isLength({ min: 10 })
