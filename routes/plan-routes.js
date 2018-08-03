@@ -196,4 +196,66 @@ module.exports = (app) => {
 
        res.json(result)
   })
+
+  app.delete(
+    '/plans/:planId/admins',
+    [
+      checkPath('planId').isLength({ min: 10 }),
+      checkQuery('targetUser').isLength({ min: 10 })
+    ],
+    async (req, res) => {
+
+      const { planId } = req.params
+      const { userId } = req
+      const { targetUser } = req.query
+
+      var result = null
+      var targetUserDb = null
+
+      try {
+        // make sure plan and targetUser exists
+        result = await Plan.findById(planId)
+        targetUserDb = await User.findById(targetUser)
+      } catch(err) {
+        console.log('/plans/admins POST', err);
+      }
+
+       // validate input
+       var errors = validationResult(req)
+       if (!errors.isEmpty() || !result || !targetUserDb ) {
+         return res.status(422).json({ errors: errors.array() })
+       }
+
+       //check if user is among admins of this plan
+       if(!result.admins && result.admins.filter(o => o.equals(userId)).length == 0) {
+          return res.sendStatus(403)
+       }
+
+       try {
+          var userIndex = -1
+          for (let index = 0; index < result.admins.length; index++) {
+            const element = result.admins[index];
+            if (element.equals(targetUserDb.id)) {
+              userIndex = index
+              break
+            }
+          }
+
+          // remove object
+          if(userIndex > -1) {
+            result.admins.splice(userIndex, 1)
+            await result.save()
+          }
+
+          result = await Plan.findById(planId)
+            .populate({path: "admins", model: model.USERS_MODEL, select: "name _id"})
+            .populate({path: "expenses", model: model.EXPENSE_MODEL, select: "-__v"})
+            .select("-__v")
+
+          } catch(err) {
+              console.log("/plans/admins DELETE", err)
+          }
+
+          res.json(result)
+    })
 }
