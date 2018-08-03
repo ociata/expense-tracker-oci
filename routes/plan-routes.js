@@ -217,7 +217,7 @@ module.exports = (app) => {
         result = await Plan.findById(planId)
         targetUserDb = await User.findById(targetUser)
       } catch(err) {
-        console.log('/plans/admins POST', err);
+        console.log('/plans/admins DELETE', err);
       }
 
        // validate input
@@ -258,4 +258,60 @@ module.exports = (app) => {
 
           res.json(result)
     })
+
+    app.post(
+      '/plans/:planId/expenses',
+      [
+        checkPath('planId').isLength({ min: 10 }),
+        checkBody('value').isNumeric(),
+        checkBody('description').isLength({ min: 3 }),
+        checkBody('type').isIn(['pending', 'payed', 'unplanned'])
+      ],
+      async (req, res) => {
+
+        const { planId } = req.params
+        const { userId } = req
+
+        var result = null
+
+        try {
+          // make sure plan and targetUser exists
+          result = await Plan.findById(planId)
+        } catch(err) {
+          console.log('/plans/admins POST', err);
+        }
+
+        // validate input
+        var errors = validationResult(req)
+        if (!errors.isEmpty() || !result) {
+          return res.status(422).json({ errors: errors.array() })
+        }
+
+        //check if user is among admins of this plan
+        if(!result.admins && result.admins.filter(o => o.equals(userId)).length == 0) {
+            return res.sendStatus(403)
+        }
+
+        const { value, description, type, referenceId } = req.body
+
+        try {
+          // first create expense
+          const expense = await new Expense({value, description, type, referenceId}).save()
+
+          // now add it to plan expenses
+          result.expenses.push(expense.id)
+          await result.save()
+
+          result = await Plan.findById(result.id)
+            .populate({path: "admins", model: model.USERS_MODEL, select: "name _id"})
+            .populate({path: "expenses", model: model.EXPENSE_MODEL, select: "-__v"})
+            .select("-__v")
+
+        } catch(err) {
+          console.log('/plans/expenses POST', err)
+        }
+
+        res.json(result)
+      }
+    )
 }
