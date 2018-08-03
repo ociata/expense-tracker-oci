@@ -47,6 +47,16 @@ module.exports = (app) => {
 
       var statusCode = 500
 
+      try {
+        const oldPlan = await Plan.findOne({ description })
+        
+        if(oldPlan) {
+          return res.sendStatus(409)
+        }
+      } catch(err) {
+        console.log('/plans POST', err)
+      }
+
       // first try to create the plan
       var plan = await addPlan(description, money, userId)
       var expenseObjects = []
