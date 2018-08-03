@@ -314,4 +314,69 @@ module.exports = (app) => {
         res.json(result)
       }
     )
+
+    app.delete(
+      '/plans/:planId/expenses',
+      [
+        checkPath('planId').isLength({ min: 10 }),
+        checkQuery('expenseId').isLength({ min: 10 })
+      ],
+      async (req, res) => {
+
+        const { planId } = req.params
+        const { userId } = req
+
+        var result = null
+
+        try {
+          // make sure plan and targetUser exists
+          result = await Plan.findById(planId)
+            .populate({path: "expenses", model: model.EXPENSE_MODEL})
+        } catch(err) {
+          console.log('/plans/admins POST', err);
+        }
+
+        // validate input
+        var errors = validationResult(req)
+        if (!errors.isEmpty() || !result) {
+          return res.status(422).json({ errors: errors.array() })
+        }
+
+        //check if user is among admins of this plan
+        if(!result.admins && result.admins.filter(o => o.equals(userId)).length == 0) {
+            return res.sendStatus(403)
+        }
+
+        const { expenseId } = req.query
+
+        try {
+          var foundIndex = -1
+          for (let index = 0; index < result.expenses.length; index++) {
+            const element = result.expenses[index];
+            if (element.equals(expenseId)) {
+              foundIndex = index
+              break
+            }
+          }
+
+          // remove object
+          if(foundIndex > -1) {
+            result.expenses.splice(foundIndex, 1)
+            result.expenses = result.expenses.map(o => o.id)
+            await result.save()
+          }
+
+          // refresh result
+          result = await Plan.findById(result.id)
+            .populate({path: "admins", model: model.USERS_MODEL, select: "name _id"})
+            .populate({path: "expenses", model: model.EXPENSE_MODEL, select: "-__v"})
+            .select("-__v")
+
+        } catch(err) {
+          console.log('/plans/expenses POST', err)
+        }
+
+        res.json(result)
+      }
+    )
 }
