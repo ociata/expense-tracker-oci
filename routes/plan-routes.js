@@ -3,7 +3,7 @@ const checkQuery = buildCheckFunction(['query'])
 const checkBody = buildCheckFunction(['body'])
 const mongoose = require('mongoose')
 const model = require('../models/model-keys')
-const { plansWithAdminUserId, addPlan, addExpense, detailsForUserIds } = require('../utility/db-helper')
+const { plansWithAdminUserIds, addPlan, addExpense, detailsForUserIds } = require('../utility/db-helper')
 
 module.exports = (app) => {
 
@@ -11,7 +11,12 @@ module.exports = (app) => {
 
     const { userId } = req
 
-    var results = await plansWithAdminUserId(userId)
+    var results = await plansWithAdminUserIds([userId], 
+      { "admins.googleId": false,
+        "admins.__v": false,
+        "expenses": false,
+        "__v": false }
+    )
 
     res.json(results)
   }),

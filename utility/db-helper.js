@@ -50,14 +50,36 @@ module.exports = {
     return result
   },
 
-  plansWithAdminUserId: async function(userId) {
+  plansWithAdminUserIds: async function(userIds, project) {
     
     var result = []
 
-    try {
-      const query = { admins: { $elemMatch: { _id: userId } } }
+    var dbIds = userIds.map(object => { return new mongoose.Types.ObjectId(object) })
 
-      result = await Plan.find(query)
+    try {
+      //const query = { admins: { $in: dbIds } }
+      var query = [
+        { $match: { admins: { $in: [dbIds] } } },
+        { $lookup: { 
+            from: "users",
+            localField: "admins",
+            foreignField: "_id",
+            as: "admins"
+        } },
+        { $lookup: { 
+            from: "expenses",
+            localField: "expenses",
+            foreignField: "_id",
+            as: "expenses"
+        } },
+      ]
+
+      // limit fields if needed
+      if(project) {
+        query.push({ $project: project })
+      }
+
+      result = await Plan.aggregate(query)
     } catch(err) {
       console.log('unable to fetch plans for userId', err)
     }
