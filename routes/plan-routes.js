@@ -1,9 +1,14 @@
 const { validationResult, buildCheckFunction } = require('express-validator/check')
 const checkQuery = buildCheckFunction(['query'])
 const checkBody = buildCheckFunction(['body'])
+const checkPath = buildCheckFunction(['params'])
 const mongoose = require('mongoose')
 const model = require('../models/model-keys')
-const { plansWithAdminUserIds, addPlan, addExpense, detailsForUserIds } = require('../utility/db-helper')
+const { addPlan, addExpense, detailsForUserIds } = require('../utility/db-helper')
+const User = mongoose.model(model.USERS_MODEL)
+const Relationship = mongoose.model(model.RELATIONSHIP_MODEL)
+const Plan = mongoose.model(model.PLAN_MODEL)
+const Expense = mongoose.model(model.EXPENSE_MODEL)
 
 module.exports = (app) => {
 
@@ -11,12 +16,15 @@ module.exports = (app) => {
 
     const { userId } = req
 
-    var results = await plansWithAdminUserIds([userId], 
-      { "admins.googleId": false,
-        "admins.__v": false,
-        "expenses": false,
-        "__v": false }
-    )
+    var results = []
+
+    var dbIds = [userId].map(object => { return new mongoose.Types.ObjectId(object) })
+
+    try {
+      results = await Plan.find({ admins: { $in: dbIds } }).select('-expenses -money').populate({path: "admins", model: "users", select: "name _id"})
+    } catch(err) {
+      console.log('GET /plans', err)
+    }
 
     res.json(results)
   }),
@@ -83,5 +91,48 @@ module.exports = (app) => {
           }
         })
       })
+  })
+
+  app.patch('/plans/:planId',[
+      checkQuery('value').isNumeric(),
+      checkPath('planId').isLength({ min: 10 })
+    ], async (req, res) => {
+
+      const { planId } = req.params
+      const { userId } = req
+      const { value } = req.query
+
+      var result = null
+
+      try {
+        // make sure plan exists
+        result = await Plan.findOne({ _id: planId })
+      } catch(err) {
+
+        console.log('/plans PATCH', err);
+      }
+
+       // validate input
+       var errors = validationResult(req)
+       if (!errors.isEmpty() || !result ) {
+         return res.status(422).json({ errors: errors.array() })
+       }
+
+       //check if user is among admins of this plan
+       if(!result.admins && result.admins.filter(o => o.equals(userId)).length == 0) {
+          return res.sendStatus(403)
+       }
+
+       try {
+        result.money = { value }
+        result = await Plan.findByIdAndUpdate(planId, { money: { value } }, { new: true })
+                      .populate({path: "admins", model: model.USERS_MODEL, select: "name _id"})
+                      .populate({path: "expenses", model: model.EXPENSE_MODEL, select: "-__v"})
+                      .select("-__v")
+       } catch(err) {
+         console.log("PATCH /plans money", err)
+       }
+
+       res.json(result)
   })
 }

@@ -50,43 +50,6 @@ module.exports = {
     return result
   },
 
-  plansWithAdminUserIds: async function(userIds, project) {
-    
-    var result = []
-
-    var dbIds = userIds.map(object => { return new mongoose.Types.ObjectId(object) })
-
-    try {
-      //const query = { admins: { $in: dbIds } }
-      var query = [
-        { $match: { admins: { $in: [dbIds] } } },
-        { $lookup: { 
-            from: "users",
-            localField: "admins",
-            foreignField: "_id",
-            as: "admins"
-        } },
-        { $lookup: { 
-            from: "expenses",
-            localField: "expenses",
-            foreignField: "_id",
-            as: "expenses"
-        } },
-      ]
-
-      // limit fields if needed
-      if(project) {
-        query.push({ $project: project })
-      }
-
-      result = await Plan.aggregate(query)
-    } catch(err) {
-      console.log('unable to fetch plans for userId', err)
-    }
-
-    return result
-  },
-
   addPlan: async function(description, money, userId) {
 
     // we do not check values here, be sure they are checked before calling this method
