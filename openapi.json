@@ -20,25 +20,16 @@
         "tags": [
           "auth"
         ],
-        "requestBody": {
-          "description": "Provide credentials in order to authenticate",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "googleId"
-                ],
-                "properties": {
-                  "googleId": {
-                    "$ref": "#/components/schemas/GoogleId"
-                  }
-                }
-              }
+        "parameters": [
+          {
+            "name": "googleToken",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/GoogleToken"
             }
           }
-        },
+        ],
         "responses": {
           "200": {
             "$ref": "#/components/responses/LoggedUser"
@@ -113,30 +104,16 @@
         "tags": [
           "users"
         ],
-        "requestBody": {
-          "description": "User to be created",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "googleId"
-                ],
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/UserProperties"
-                  }
-                ],
-                "properties": {
-                  "googleId": {
-                    "$ref": "#/components/schemas/GoogleId"
-                  }
-                }
-              }
+        "parameters": [
+          {
+            "name": "googleToken",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/GoogleToken"
             }
           }
-        },
+        ],
         "responses": {
           "201": {
             "$ref": "#/components/responses/LoggedUser"
@@ -1189,9 +1166,9 @@
         "type": "string",
         "example": "5b59940a06dae000b9248341"
       },
-      "GoogleId": {
+      "GoogleToken": {
         "type": "string",
-        "example": "067074372935586760222"
+        "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJP"
       },
       "UserName": {
         "type": "string",
@@ -1461,7 +1438,7 @@
               ],
               "properties": {
                 "googleId": {
-                  "$ref": "#/components/schemas/GoogleId"
+                  "$ref": "#/components/schemas/UserId"
                 }
               }
             }

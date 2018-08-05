@@ -51,16 +51,10 @@ module.exports = (app) => {
   })
 
   app.post('/users', [
-    check('googleId').isLength({ min: 10, max: 50 }),
   ], async (req, res) => {
 
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
-
     // get params
-    const { googleId, name } = req.body
+    const { googleId, googleName } = req
 
     var createdUser = null
 
@@ -72,7 +66,7 @@ module.exports = (app) => {
         return res.status(409).send("Requested resource cannot be created as it already exists")
       }      
 
-      createdUser = await new User({ googleId, name }).save()
+      createdUser = await new User({ googleId, name: googleName }).save()
 
     } catch (error) {
       // todo: add papertrail logs

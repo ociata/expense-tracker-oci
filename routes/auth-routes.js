@@ -15,7 +15,7 @@ module.exports = (app) => {
     }
 
     // get params
-    const { googleId } = req.body
+    const { googleId } = req
 
     var existingUser = null
 
