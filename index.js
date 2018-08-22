@@ -30,6 +30,7 @@ require('./routes/user-routes')(app)
 require('./routes/auth-routes')(app)
 require('./routes/relationship-routes')(app)
 require('./routes/plan-routes')(app)
+require('./routes/expense-routes')(app)
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => console.log('Example app listening on port: ' + PORT))
