@@ -362,6 +362,77 @@ module.exports = (app) => {
       }
     )
 
+    app.put('/plans/:planId/expenses', 
+    [
+      checkPath('planId').isLength({ min: 10 }),
+      checkQuery('expenseId').isLength({ min: 10 })
+    ],
+    async (req, res) => {
+
+      const { planId } = req.params
+      const { userId } = req
+
+      var result = null
+
+      try {
+        // make sure plan and targetUser exists
+        result = await Plan.findById(planId)
+          .populate({path: "expenses", model: model.EXPENSE_MODEL})
+      } catch(err) {
+        console.log('/plans/:planId/expenses PUT', err);
+      }
+
+      // validate input
+      var errors = validationResult(req)
+      if (!errors.isEmpty() || !result) {
+        return res.status(422).json({ errors: errors.array() })
+      }
+
+      //check if user is among admins of this plan
+      if(!result.admins && result.admins.filter(o => o.equals(userId)).length == 0) {
+          return res.sendStatus(403)
+      }
+
+      const { expenseId } = req.query
+
+      const { value, description, type } = req.body
+
+      // prepare update query
+      var updateQuery = {}
+
+      if(value) {
+        updateQuery['value'] = value
+      }
+
+      if(description) {
+        updateQuery['description'] = description
+      }
+
+      if(type) {
+        updateQuery['type'] = type
+      }
+
+      try {
+         await Expense.findByIdAndUpdate(expenseId, updateQuery, { new: true })
+      } catch(err) {
+        console.log("/plans/:planId/expenses PUT", err)
+        return res.sendStatus(501)
+      }
+
+      try {
+        // refresh result
+        result = await Plan.findById(result.id)
+          .populate({path: "admins", model: model.USERS_MODEL, select: "name _id"})
+          .populate({path: "expenses", model: model.EXPENSE_MODEL, select: "-__v"})
+          .select("-__v")
+
+      } catch(err) {
+        console.log('/plans/:planId/expenses PUT', err)
+      }
+
+      res.json(result)
+    })
+
     app.delete(
       '/plans/:planId/expenses',
       [
