@@ -45,7 +45,7 @@ paths:
               schema:
                 type: array
                 items:
-                  allOf: 
+                  allOf:
                     - $ref: '#/components/schemas/User'
                   properties:
                     relation:
@@ -122,8 +122,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
     delete:
-      summary: Delete user, works only for randomly generated(test) user
-      tags: 
+      summary: 'Delete user, works only for randomly generated(test) user'
+      tags:
         - users
       responses:
         '202':
@@ -140,8 +140,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-      
-  '/friends':
+  /friends:
     post:
       summary: Send friend request
       operationId: sendFriendRequest
@@ -177,7 +176,7 @@ paths:
       operationId: listFriendRequests
       tags:
         - friends
-      parameters: 
+      parameters:
         - name: status
           in: query
           required: false
@@ -247,8 +246,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                
-  '/plans':
+  /plans:
     get:
       summary: List ordered array of plans
       operationId: listPlans
@@ -262,7 +260,7 @@ paths:
               schema:
                 type: array
                 items:
-                 $ref: '#/components/schemas/PlanOverview'
+                  $ref: '#/components/schemas/PlanOverview'
         '401':
           $ref: '#/components/responses/Unauthorized'
         default:
@@ -270,14 +268,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error' 
+                $ref: '#/components/schemas/Error'
     post:
       summary: Add new plan(current user is the first admin)
       operationId: addPlan
       tags:
         - plans
       requestBody:
-        description: Details for the plan. 
+        description: Details for the plan.
         required: true
         content:
           application/json:
@@ -308,16 +306,16 @@ paths:
                 properties:
                   id:
                     $ref: '#/components/schemas/RequestId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '422':
           description: request is mallformed
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MallformedRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
         default:
           description: Unexpected error
           content:
@@ -347,16 +345,16 @@ paths:
                 properties:
                   id:
                     $ref: '#/components/schemas/RequestId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '422':
           description: request is mallformed
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MallformedRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
         default:
           description: Unexpected error
           content:
@@ -366,7 +364,7 @@ paths:
     patch:
       summary: Update plan money
       operationId: updatePlan
-      tags: 
+      tags:
         - plans
       parameters:
         - name: planId
@@ -390,16 +388,16 @@ paths:
                 properties:
                   id:
                     $ref: '#/components/schemas/RequestId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '422':
           description: request is mallformed
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MallformedRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
         default:
           description: Unexpected error
           content:
@@ -410,7 +408,7 @@ paths:
     post:
       summary: Add new plan admin
       operationId: addPlanAdmin
-      tags: 
+      tags:
         - plans
       parameters:
         - name: planId
@@ -434,16 +432,16 @@ paths:
                 properties:
                   id:
                     $ref: '#/components/schemas/RequestId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '422':
           description: request is mallformed
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MallformedRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
         default:
           description: Unexpected error
           content:
@@ -453,7 +451,7 @@ paths:
     delete:
       summary: Remove plan admin
       operationId: addPlanAdmin
-      tags: 
+      tags:
         - plans
       parameters:
         - name: planId
@@ -477,29 +475,29 @@ paths:
                 properties:
                   id:
                     $ref: '#/components/schemas/RequestId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '422':
           description: request is mallformed
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MallformedRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
         default:
           description: Unexpected error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'                    
+                $ref: '#/components/schemas/Error'
   '/plans/:planId/expenses':
     post:
       summary: Add new expense to plan
       operationId: addExpense
       tags:
         - plans
-      parameters: 
+      parameters:
         - name: planId
           description: Specifiy to which plans we are adding
           in: path
@@ -520,21 +518,76 @@ paths:
                   $ref: '#/components/schemas/RequestId'
       responses:
         '200':
-          description: Successfuly retrieved expenses
+          description: plan was updated
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ExpenseExtended'
+                allOf:
+                  - $ref: '#/components/schemas/Plan'
+                properties:
+                  id:
+                    $ref: '#/components/schemas/RequestId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '422':
           description: request is mallformed
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MallformedRequest'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Add new expense to plan
+      operationId: addExpense
+      tags:
+        - plans
+      parameters:
+        - name: planId
+          description: Specifiy to which plans we are adding
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/RequestId'
+        - name: expenseId
+          description: Expense id to be updated
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Expense'
+              properties:
+                type:
+                  $ref: '#/components/schemas/ExpenseType'
+      responses:
+        '200':
+          description: plan was updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Plan'
+                properties:
+                  id:
+                    $ref: '#/components/schemas/RequestId'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '422':
+          description: request is mallformed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MallformedRequest'
         default:
           description: Unexpected error
           content:
@@ -546,7 +599,7 @@ paths:
       operationId: removeExpense
       tags:
         - plans
-      parameters: 
+      parameters:
         - name: expenseId
           in: query
           required: true
@@ -559,29 +612,36 @@ paths:
             $ref: '#/components/schemas/RequestId'
       responses:
         '202':
-          description: Expense marked for deletion
+          description: plan was updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Plan'
+                properties:
+                  id:
+                    $ref: '#/components/schemas/RequestId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '422':
           description: request is mallformed
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MallformedRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
         default:
           description: Unexpected error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error' 
-          
-  '/expenses':
+                $ref: '#/components/schemas/Error'
+  /expenses:
     get:
       summary: List all expenses by specific criteria
       operationId: listExpenses
       tags:
         - expenses
-      parameters: 
+      parameters:
         - name: planId
           description: Specifiy to which plans are needed expenses
           in: query
@@ -602,63 +662,20 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ExpenseExtended'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '422':
           description: request is mallformed
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MallformedRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
         default:
           description: Unexpected error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  '/expenses/:expenseId':
-    put:
-      summary: Update expense
-      operationId: updateExpense
-      tags:
-        - expenses
-      parameters: 
-        - name: expenseId
-          in: path
-          required: true
-          schema:
-            $ref: '#/components/schemas/RequestId'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              allOf:
-                - $ref: '#/components/schemas/Expense'
-              properties:
-                type:
-                  $ref: '#/components/schemas/ExpenseType'
-      responses:
-        '200':
-          description: Successfuly retrieved expenses
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ExpenseExtended'
-        '422':
-          description: request is mallformed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MallformedRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-       
 security:
   - api_key: []
   - bearerAuth: []
@@ -721,7 +738,7 @@ components:
       example: 5b59940a06dae000b9248341
     GoogleToken:
       type: string
-      example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJP"
+      example: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJP
     UserName:
       type: string
       example: Hristo Todorov
@@ -739,7 +756,10 @@ components:
           $ref: '#/components/schemas/UserId'
     ExpenseType:
       type: string
-      enum: [pending, payed, unplanned]
+      enum:
+        - pending
+        - payed
+        - unplanned
     Expense:
       type: object
       properties:
@@ -774,14 +794,14 @@ components:
           $ref: '#/components/schemas/RequestId'
         description:
           type: string
-          example: 'August 2018'
+          example: August 2018
         admins:
           type: array
           items:
             $ref: '#/components/schemas/User'
     MoneyValue:
       type: number
-      example: 6400.00
+      example: 6400
     Money:
       type: object
       properties:
@@ -805,8 +825,8 @@ components:
               type: array
               items:
                 allOf:
-                 - $ref: '#/components/schemas/Expense'
-                 - $ref: '#/components/schemas/ExpenseWithIds'
+                  - $ref: '#/components/schemas/Expense'
+                  - $ref: '#/components/schemas/ExpenseWithIds'
                 properties:
                   payed:
                     type: boolean

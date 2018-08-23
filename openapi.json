@@ -854,13 +854,109 @@
         },
         "responses": {
           "200": {
-            "description": "Successfuly retrieved expenses",
+            "description": "plan was updated",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ExpenseExtended"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Plan"
+                    }
+                  ],
+                  "properties": {
+                    "id": {
+                      "$ref": "#/components/schemas/RequestId"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "description": "request is mallformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MallformedRequest"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Add new expense to plan",
+        "operationId": "addExpense",
+        "tags": [
+          "plans"
+        ],
+        "parameters": [
+          {
+            "name": "planId",
+            "description": "Specifiy to which plans we are adding",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/RequestId"
+            }
+          },
+          {
+            "name": "expenseId",
+            "description": "Expense id to be updated",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/RequestId"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Expense"
+                  }
+                ],
+                "properties": {
+                  "type": {
+                    "$ref": "#/components/schemas/ExpenseType"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "plan was updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Plan"
+                    }
+                  ],
+                  "properties": {
+                    "id": {
+                      "$ref": "#/components/schemas/RequestId"
+                    }
                   }
                 }
               }
@@ -917,7 +1013,23 @@
         ],
         "responses": {
           "202": {
-            "description": "Expense marked for deletion"
+            "description": "plan was updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/Plan"
+                    }
+                  ],
+                  "properties": {
+                    "id": {
+                      "$ref": "#/components/schemas/RequestId"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
@@ -981,78 +1093,6 @@
                   "items": {
                     "$ref": "#/components/schemas/ExpenseExtended"
                   }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "422": {
-            "description": "request is mallformed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MallformedRequest"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/expenses/:expenseId": {
-      "put": {
-        "summary": "Update expense",
-        "operationId": "updateExpense",
-        "tags": [
-          "expenses"
-        ],
-        "parameters": [
-          {
-            "name": "expenseId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/RequestId"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/Expense"
-                  }
-                ],
-                "properties": {
-                  "type": {
-                    "$ref": "#/components/schemas/ExpenseType"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successfuly retrieved expenses",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExpenseExtended"
                 }
               }
             }
