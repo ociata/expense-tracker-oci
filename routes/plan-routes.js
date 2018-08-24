@@ -57,50 +57,54 @@ module.exports = (app) => {
         console.log('/plans POST', err)
       }
 
-      // first try to create the plan
-      var plan = await addPlan(description, money, userId)
-      var expenseObjects = []
+      // insert expenses and get their ObjectIDs
+      var richPlanned = []
+      if(planned && planned instanceof Array) {
+        richPlanned = planned.map(expense => {
+          var richExpense = expense
+          richExpense.expenseType = 'pending'
+          return richExpense
+        })
 
-      if(plan) {
-        statusCode = 200
-        // we managed to create plan, see and add expenses if provided
-        if(planned && planned instanceof Array) {
-          await Promise.all(planned.map(async expense => {
-              //make sure we have properties
-              const { value, description, referenceId } = expense
-              if(value && description) {
-                const newExpense = await addExpense(value, description, referenceId, 'pending')
-                
-                if(newExpense) {
-                  try {
-                    plan.expenses.push(newExpense.id)
-                    await plan.save()
-                    //store the whole object in order to return it
-                    expenseObjects.push(newExpense)
-                  } catch(err) {
-                    console.log('/plans POST', err)
-                  }
-                }
-              }
-            })
-          )
+        try {
+          const insertedExpenses = await Expense.insertMany(richPlanned)
+
+          richPlanned = insertedExpenses.map(insertedExpense => {
+            return insertedExpense.id
+          })
+        } catch(err) {
+          console.log("/plans POST", err);
         }
       }
 
-      const userObjects = await detailsForUserIds([userId])
-            
-      res.status(statusCode).json({
-        money: plan.money,
-        id: plan.id,
-        description: plan.description,
-        expenses: expenseObjects,
-        admins: userObjects.map(object => {
-          return {
-            id: object.id,
-            name: object.name
-          }
-        })
-      })
+      // create plan with inserted expenses
+      var plan = null
+      try {
+        plan = await new Plan({ 
+          description,
+          money: {
+            value: money
+          },
+          admins: [userId],
+          expenses: richPlanned
+        }).save()
+      } catch(err) {
+        console.log('POST /plans', err)
+      }
+
+      var result = null
+
+      try {
+        // make sure plan exists
+        result = await Plan.findById(plan.id)
+          .populate({path: "admins", model: model.USERS_MODEL, select: "name _id"})
+          .populate({path: "expenses", model: model.EXPENSE_MODEL, select: "-__v"})
+          .select("-__v")
+      } catch(err) {
+        console.log('/plans POST', err);
+      }
+
+      res.json(result)
   })
 
   app.get(
@@ -312,7 +316,7 @@ module.exports = (app) => {
         checkPath('planId').isLength({ min: 10 }),
         checkBody('value').isNumeric(),
         checkBody('description').isLength({ min: 3 }),
-        checkBody('type').isIn(['pending', 'payed', 'unplanned'])
+        checkBody('expenseType').isIn(['pending', 'payed', 'unplanned'])
       ],
       async (req, res) => {
 
@@ -339,11 +343,11 @@ module.exports = (app) => {
             return res.sendStatus(403)
         }
 
-        const { value, description, type, referenceId } = req.body
+        const { value, description, expenseType, referenceId } = req.body
 
         try {
           // first create expense
-          const expense = await new Expense({value, description, type, referenceId}).save()
+          const expense = await new Expense({value, description, expenseType, referenceId}).save()
 
           // now add it to plan expenses
           result.expenses.push(expense.id)
@@ -395,7 +399,7 @@ module.exports = (app) => {
 
       const { expenseId } = req.query
 
-      const { value, description, type } = req.body
+      const { value, description, expenseType } = req.body
 
       // prepare update query
       var updateQuery = {}
@@ -408,8 +412,8 @@ module.exports = (app) => {
         updateQuery['description'] = description
       }
 
-      if(type) {
-        updateQuery['type'] = type
+      if(expenseType) {
+        updateQuery['expenseType'] = expenseType
       }
 
       try {
