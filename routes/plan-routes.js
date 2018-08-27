@@ -45,18 +45,6 @@ module.exports = (app) => {
       const { userId } = req
       const { description, money, planned } = req.body
 
-      var statusCode = 500
-
-      try {
-        const oldPlan = await Plan.findOne({ description })
-        
-        if(oldPlan) {
-          return res.sendStatus(409)
-        }
-      } catch(err) {
-        console.log('/plans POST', err)
-      }
-
       // insert expenses and get their ObjectIDs
       var richPlanned = []
       if(planned && planned instanceof Array) {
