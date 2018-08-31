@@ -6,7 +6,7 @@ const User = mongoose.model(model.USERS_MODEL)
 const Relationship = mongoose.model(model.RELATIONSHIP_MODEL)
 const jwtHelper = require('../utility/jwt-helper')
 
-module.exports = (app) => {
+module.exports = (app, googleClient) => {
   app.get('/users', async (req, res) => {
 
     const { userId } = req
@@ -52,22 +52,49 @@ module.exports = (app) => {
   })
 
   app.post('/users', [
+    checkQuery('googleToken').isLength({ min: 10 })
   ], async (req, res) => {
 
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
     // get params
-    const { googleId, googleName, googleEmail } = req
+    const { googleToken } = req.query
+
+    var userPayload = null
+
+    // verify provided google token
+    try {
+      const ticket = await googleClient.verifyIdToken({
+        idToken: googleToken
+      });
+
+      userPayload = ticket.getPayload()
+
+      if(!userPayload) {
+        return res.sendStatus(400)
+      }
+      
+    } catch(err) {
+      console.log("processing google token", err)
+      return res.sendStatus(401)
+    }
 
     var createdUser = null
 
     //make sure such user don't exists
     try {
-      createdUser = await User.findOne({googleId: googleId})
+      createdUser = await User.findOne({googleId: userPayload['sub']})
       if(null != createdUser) {
         res.set('content-type', 'text/plain')
         return res.status(409).send("Requested resource cannot be created as it already exists")
       }      
 
-      createdUser = await new User({ googleId, name: googleName, email: googleEmail }).save()
+      createdUser = await new User({ googleId: userPayload['sub'],
+       name: userPayload['name'],
+       email: userPayload['email'] }).save()
 
     } catch (error) {
       // todo: add papertrail logs
@@ -79,9 +106,10 @@ module.exports = (app) => {
     res.set('Auth-Token', token)
 
     // return newly created user together with his id from db
-    res.status(201).json({ 
+    res.status(201).json({
       googleId: createdUser.googleId,
       name: createdUser.name,
+      email: createdUser.email,
       userId: createdUser.id
     })
   })
