@@ -6,6 +6,36 @@ servers:
   - url: 'https://expense-tracker-oci.herokuapp.com/'
   - url: 'http://localhost:5000/'
 paths:
+  /security:
+    delete:
+      summary: Enable server to act on behalf of user
+      operationId: removeSecurity
+      tags:
+        - security
+      parameters:
+        - name: googleId
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/GoogleToken'
+        - name: serverCode
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/GoogleToken'  
+      responses:
+        '200':
+          description: Successfully removed security
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  updatedGoogleToken:
+                    allOf:
+                      - $ref: '#/components/schemas/GoogleToken'
+        '404':
+          $ref: '#/components/responses/NotFound'
   /auth:
     post:
       summary: Authenticate user
@@ -14,6 +44,11 @@ paths:
         - auth
       parameters:
         - name: googleToken
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/GoogleToken'
+        - name: googleId
           in: query
           required: true
           schema:
