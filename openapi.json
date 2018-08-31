@@ -307,19 +307,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "allOf": [
-                      {
-                        "$ref": "#/components/schemas/User"
-                      },
-                      {
-                        "$ref": "#/components/schemas/FriendRequest"
-                      }
-                    ],
-                    "properties": {
-                      "myRequest": {
-                        "type": "boolean"
-                      }
-                    }
+                    "$ref": "#/components/schemas/FriendRequest"
                   }
                 }
               }
@@ -378,7 +366,10 @@
                 },
                 "example": {
                   "requestId": "sx6biozc38dcv61lbfup8341",
-                  "requestStatus": "accepted"
+                  "requestStatus": "accepted",
+                  "name": "Hristo Todorov",
+                  "userId": "5b59940a06dae000b9248341",
+                  "myRequest": false
                 }
               }
             }
@@ -1398,12 +1389,20 @@
           "requestId",
           "requestStatus"
         ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/User"
+          }
+        ],
         "properties": {
           "requestId": {
             "$ref": "#/components/schemas/RequestId"
           },
           "requestStatus": {
             "$ref": "#/components/schemas/FriendStatus"
+          },
+          "myRequest": {
+            "type": "boolean"
           }
         }
       },

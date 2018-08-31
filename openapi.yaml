@@ -193,12 +193,7 @@ paths:
               schema:
                 type: array
                 items:
-                  allOf:
-                    - $ref: '#/components/schemas/User'
-                    - $ref: '#/components/schemas/FriendRequest'
-                  properties:
-                    myRequest:
-                      type: boolean
+                  $ref: '#/components/schemas/FriendRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -236,6 +231,9 @@ paths:
               example:
                 requestId: sx6biozc38dcv61lbfup8341
                 requestStatus: accepted
+                name: Hristo Todorov
+                userId: 5b59940a06dae000b9248341
+                myRequest: false
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -857,11 +855,15 @@ components:
       required:
         - requestId
         - requestStatus
+      allOf:
+          - $ref: '#/components/schemas/User'
       properties:
         requestId:
           $ref: '#/components/schemas/RequestId'
         requestStatus:
           $ref: '#/components/schemas/FriendStatus'
+        myRequest:
+          type: boolean
     MallformedRequest:
       type: array
       items:
