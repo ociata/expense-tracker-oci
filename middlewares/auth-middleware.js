@@ -14,7 +14,9 @@ module.exports = (app) => {
     // skip auth and register paths
     const { path, method } = req
 
-    if(path == "/auth" || (path == "/users" && method == 'POST')) {
+    if(path == "/auth" || (path == "/users" && method == 'POST') || path == '/security') {
+
+      return next()
 
       const { code } = req.query
 

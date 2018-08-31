@@ -2,11 +2,14 @@ const { check, validationResult } = require('express-validator/check')
 const mongoose = require('mongoose')
 const model = require('../models/model-keys')
 const User = mongoose.model(model.USERS_MODEL)
+const InsecureSession = mongoose.model(model.INSECURE_SESSION_MODEL)
 const jwtHelper = require('../utility/jwt-helper')
+const { verifyTokenValue } = require('../utility/google-token-helper')
 
-module.exports = (app) => {
+module.exports = (app, googleClient) => {
   app.post('/auth', [
-    check('googleId').isLength({ max: 50 }),
+    check('googleId').isLength({ min: 10 }),
+    check('googleToken').isLength({ min: 10 })
   ], async (req, res) => {
 
     const errors = validationResult(req);
@@ -15,13 +18,50 @@ module.exports = (app) => {
     }
 
     // get params
-    const { googleId } = req
+    const { googleId, googleToken } = req.query
+
+    var idToUse = null
+
+    // verify provided google token
+    idToUse = await verifyTokenValue(googleClient, googleToken)
+
+    if(!idToUse) {
+      // token missing, check insecure sessions
+      try {
+        const storedSession = await InsecureSession.findOne({userReference: googleId})
+        
+        if (!storedSession) {
+          // no session, obviosly return
+          return res.sendStatus(409)
+        }
+
+        googleClient.setCredentials({
+          refresh_token: storedSession.refreshToken
+        })
+  
+        // refresh access tokens
+        const tokens = await googleClient.refreshAccessToken()
+  
+        // get token info
+        // const tokenInfo = await googleClient.getTokenInfo(tokens.access_token)
+        
+        idToUse = await verifyTokenValue(googleClient, tokens.credentials.id_token)
+
+        if (idToUse != googleId) {
+          return res.sendStatus(409)
+        }
+
+      } catch(err) {
+        console.log("POST /auth", err)
+        return res.sendStatus(409)
+      }
+    }
 
     var existingUser = null
 
     //make sure such user don't exists
     try {
-      existingUser = await User.findOne({googleId: googleId})
+      existingUser = await User.findOne({googleId: idToUse})
 
     } catch (error) {
       // todo: add papertrail logs
@@ -38,6 +78,7 @@ module.exports = (app) => {
       return res.json({ 
         googleId: existingUser.googleId,
         name: existingUser.name,
+        email: existingUser.email,
         userId: existingUser.id
       })
     } else {
