@@ -28,8 +28,11 @@ module.exports = (app) => {
       const userDetails = await userDetailsForRelation(userId, object)
       if(userDetails) {
         return {
-          userId: userDetails.id,
-          name: userDetails.name,
+          targetUser: {
+            userId: userDetails.id,
+            name: userDetails.name,
+            email: userDetails.email
+          },
           requestId: object.id,
           requestStatus: object.status,
           myRequest: object.firstUser.equals(userId)
@@ -93,9 +96,18 @@ module.exports = (app) => {
       }
     }
 
+    // get user details
+    const targetUserDetails = await User.findById(targetUser)
+
     res.status(statusCode).json({
       requestId: relation.id,
-      requestStatus: relation.status
+      requestStatus: relation.status,
+      myRequest: relation.firstUser.equals(userId),
+      targetUser: {
+        userId: targetUserDetails.id,
+        name: targetUserDetails.name,
+        email: targetUserDetails.email,
+      }
     })
   })
 
