@@ -228,12 +228,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FriendRequest'
-              example:
-                requestId: sx6biozc38dcv61lbfup8341
-                requestStatus: accepted
-                name: Hristo Todorov
-                userId: 5b59940a06dae000b9248341
-                myRequest: false
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -740,11 +734,16 @@ components:
     UserName:
       type: string
       example: Hristo Todorov
+    UserEmail:
+      type: string
+      example: oci@todorov.io
     UserProperties:
       type: object
       properties:
         name:
           $ref: '#/components/schemas/UserName'
+        email:
+          $ref: '#/components/schemas/UserEmail'
     User:
       type: object
       allOf:
@@ -855,9 +854,10 @@ components:
       required:
         - requestId
         - requestStatus
-      allOf:
-          - $ref: '#/components/schemas/User'
       properties:
+        targetUser:
+          allOf:
+            - $ref: '#/components/schemas/User'
         requestId:
           $ref: '#/components/schemas/RequestId'
         requestStatus:
