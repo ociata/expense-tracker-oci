@@ -31,6 +31,7 @@ module.exports = (app) => {
         
         req.googleId = payload['sub']
         req.googleName = payload['name']
+        req.googleEmail = payload['email']
 
         return next()
       } catch(err) {

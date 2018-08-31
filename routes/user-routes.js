@@ -39,7 +39,8 @@ module.exports = (app) => {
         return {
           name: userObj.name,
           userId: userObj.id,
-          relation: relation
+          relation: relation,
+          email: userObj.email
         }
       })
     } catch(err) {
@@ -54,7 +55,7 @@ module.exports = (app) => {
   ], async (req, res) => {
 
     // get params
-    const { googleId, googleName } = req
+    const { googleId, googleName, googleEmail } = req
 
     var createdUser = null
 
@@ -66,7 +67,7 @@ module.exports = (app) => {
         return res.status(409).send("Requested resource cannot be created as it already exists")
       }      
 
-      createdUser = await new User({ googleId, name: googleName }).save()
+      createdUser = await new User({ googleId, name: googleName, email: googleEmail }).save()
 
     } catch (error) {
       // todo: add papertrail logs

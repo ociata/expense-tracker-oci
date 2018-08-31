@@ -21,7 +21,7 @@ module.exports = (app) => {
     var dbIds = [userId].map(object => { return new mongoose.Types.ObjectId(object) })
 
     try {
-      results = await Plan.find({ admins: { $in: dbIds } }).select('-expenses -money').populate({path: "admins", model: "users", select: "name _id"})
+      results = await Plan.find({ admins: { $in: dbIds } }).select('-expenses -money').populate({path: "admins", model: "users", select: "name _id email"})
     } catch(err) {
       console.log('GET /plans', err)
     }
@@ -85,7 +85,7 @@ module.exports = (app) => {
       try {
         // make sure plan exists
         result = await Plan.findById(plan.id)
-          .populate({path: "admins", model: model.USERS_MODEL, select: "name _id"})
+          .populate({path: "admins", model: model.USERS_MODEL, select: "name _id email"})
           .populate({path: "expenses", model: model.EXPENSE_MODEL, select: "-__v"})
           .select("-__v")
       } catch(err) {
@@ -116,7 +116,7 @@ module.exports = (app) => {
       try {
         // make sure plan exists
         result = await Plan.findById(planId)
-          .populate({path: "admins", model: model.USERS_MODEL, select: "name _id"})
+          .populate({path: "admins", model: model.USERS_MODEL, select: "name _id email"})
           .populate({path: "expenses", model: model.EXPENSE_MODEL, select: "-__v"})
           .select("-__v")
       } catch(err) {
@@ -165,7 +165,7 @@ module.exports = (app) => {
        try {
         result.money = { value }
         result = await Plan.findByIdAndUpdate(planId, { money: { value } }, { new: true })
-                      .populate({path: "admins", model: model.USERS_MODEL, select: "name _id"})
+                      .populate({path: "admins", model: model.USERS_MODEL, select: "name _id email"})
                       .populate({path: "expenses", model: model.EXPENSE_MODEL, select: "-__v"})
                       .select("-__v")
        } catch(err) {
@@ -225,7 +225,7 @@ module.exports = (app) => {
           }
 
           result = await Plan.findById(planId)
-            .populate({path: "admins", model: model.USERS_MODEL, select: "name _id"})
+            .populate({path: "admins", model: model.USERS_MODEL, select: "name _id email"})
             .populate({path: "expenses", model: model.EXPENSE_MODEL, select: "-__v"})
             .select("-__v")
 
@@ -287,7 +287,7 @@ module.exports = (app) => {
           }
 
           result = await Plan.findById(planId)
-            .populate({path: "admins", model: model.USERS_MODEL, select: "name _id"})
+            .populate({path: "admins", model: model.USERS_MODEL, select: "name _id email"})
             .populate({path: "expenses", model: model.EXPENSE_MODEL, select: "-__v"})
             .select("-__v")
 
@@ -342,7 +342,7 @@ module.exports = (app) => {
           await result.save()
 
           result = await Plan.findById(result.id)
-            .populate({path: "admins", model: model.USERS_MODEL, select: "name _id"})
+            .populate({path: "admins", model: model.USERS_MODEL, select: "name _id email"})
             .populate({path: "expenses", model: model.EXPENSE_MODEL, select: "-__v"})
             .select("-__v")
 
@@ -414,7 +414,7 @@ module.exports = (app) => {
       try {
         // refresh result
         result = await Plan.findById(result.id)
-          .populate({path: "admins", model: model.USERS_MODEL, select: "name _id"})
+          .populate({path: "admins", model: model.USERS_MODEL, select: "name _id email"})
           .populate({path: "expenses", model: model.EXPENSE_MODEL, select: "-__v"})
           .select("-__v")
 
@@ -478,7 +478,7 @@ module.exports = (app) => {
 
           // refresh result
           result = await Plan.findById(result.id)
-            .populate({path: "admins", model: model.USERS_MODEL, select: "name _id"})
+            .populate({path: "admins", model: model.USERS_MODEL, select: "name _id email"})
             .populate({path: "expenses", model: model.EXPENSE_MODEL, select: "-__v"})
             .select("-__v")
 
