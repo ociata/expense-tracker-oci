@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --timeout 10000 --exit",
     "start": "node index.js"
   },
   "author": "oci",
@@ -17,5 +17,10 @@
     "mongoose": "^5.2.5",
     "swagger-ui-express": "^3.0.10",
     "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-http": "^4.2.0",
+    "mocha": "^5.2.0"
   }
 }
