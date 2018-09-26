@@ -21,7 +21,7 @@ module.exports = (app) => {
 
     const bearer = req.headers['authorization'].split(' ')
 
-    if(typeof bearer != 'undefined' && bearer != null && bearer.length == 2) {
+    if(typeof bearer !== 'undefined' && bearer != null && bearer.length === 2) {
 
       const token = bearer[1]
 
