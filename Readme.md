@@ -3,10 +3,10 @@ Node.js based project for tracking expenses
 
 ## Run
 ```
-node start
+npm start
 ```
 
 # Test
 ```
-node test
+npm test
 ```
